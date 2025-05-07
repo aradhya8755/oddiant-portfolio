@@ -1,19 +1,19 @@
 /** @type {import('next').NextConfig} */
+import path from 'path';
+
 const nextConfig = {
   reactStrictMode: true,
   
-  // Add this for path aliases
   experimental: {
     appDir: true,
   },
 
-  // Webpack config for path aliases
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': require('path').resolve(__dirname, 'src'),
-    }
-    return config
+      '@': path.resolve(__dirname, 'src'),
+    };
+    return config;
   },
 
   eslint: {
@@ -35,12 +35,11 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**", // More flexible pattern
+        hostname: "**",
       },
     ],
   },
 
-  // Correct property for external packages
   transpilePackages: ["mongoose", "exceljs", "nodemailer"],
 
   async headers() {
@@ -54,8 +53,8 @@ const nextConfig = {
           { key: "Access-Control-Max-Age", value: "86400" },
         ],
       },
-    ]
+    ];
   },
-}
+};
 
-module.exports = nextConfig
+export default nextConfig;
