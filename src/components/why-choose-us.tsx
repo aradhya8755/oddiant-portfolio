@@ -59,7 +59,7 @@ export default function WhyChooseUs() {
                 <div className="flex flex-col items-center text-center">
                   <div className="mb-4">{reason.icon}</div>
                   <h3 className="text-xl font-bold text-black mb-2">{reason.title}</h3>
-                  <p className="text-black-300">{reason.description}</p>
+                  <p className="text-black">{reason.description}</p>
                 </div>
               </CardContent>
             </Card>

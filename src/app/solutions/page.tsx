@@ -53,7 +53,7 @@ export default function SolutionsPage() {
                     <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 mb-4 group-hover:bg-blue-500/30 transition-colors">
                       {service.icon}
                     </div>
-                    <CardTitle className="text-xl">{service.title}</CardTitle>
+                    <CardTitle className="text-xl text-black">{service.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-black mb-6">

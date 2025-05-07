@@ -82,7 +82,7 @@ export default function CompanyPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Card className="bg-white border-zinc-700 animate-fade-in shadow-custom-shadow hover:shadow-hover-shadow hover:scale-105 transition-transform duration-300">
               <CardContent className="pt-6">
-                <h3 className="text-2xl font-bold mb-4 flex items-center gap-3">
+                <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-blue-700">
                   <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -101,7 +101,7 @@ export default function CompanyPage() {
                   </div>
                   Vision
                 </h3>
-                <p className="text-black-300">
+                <p className="text-black">
                   Vision To become a global leader in delivering innovative,
                   reliable, and scalable consulting solutions in IT, HR, and
                   personality development— empowering organizations and
@@ -115,7 +115,7 @@ export default function CompanyPage() {
               style={{ animationDelay: "0.2s" }}
             >
               <CardContent className="pt-6">
-                <h3 className="text-2xl font-bold mb-4 flex items-center gap-3">
+                <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-purple-700">
                   <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -134,7 +134,7 @@ export default function CompanyPage() {
                   </div>
                   Mission
                 </h3>
-                <p className="text-black-300">
+                <p className="text-black">
                   We are on a mission to empower businesses with best-fit talent
                   and 24/7 strategic support through customized, scalable
                   solutions. From global staffing to technical hiring and
