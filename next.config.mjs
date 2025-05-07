@@ -8,10 +8,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   reactStrictMode: true,
   
-  experimental: {
-    appDir: true,
-  },
-
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -25,7 +21,9 @@ const nextConfig = {
   },
 
   typescript: {
-    ignoreBuildErrors: true,
+    // During development, type errors won't stop the build
+    // But we're removing ignoreBuildErrors to ensure proper TypeScript checking
+    ignoreBuildErrors: false,
   },
 
   images: {
