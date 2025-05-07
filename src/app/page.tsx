@@ -67,11 +67,11 @@ export default function Home() {
                     <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400">
                       {service.icon}
                     </div>
-                    {service.title}
+                  <div className="text-black">{service.title}</div>  
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-zinc-800">{service.description}</p>
+                  <p className="text-black">{service.description}</p>
                 </CardContent>
               </Card>
             ))}
