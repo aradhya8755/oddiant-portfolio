@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Create __dirname equivalent for ES Modules
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig = {
   reactStrictMode: true,
