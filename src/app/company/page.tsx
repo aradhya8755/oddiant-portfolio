@@ -1,11 +1,11 @@
 "use client";
 import Image from "next/image";
-import { Card, CardContent } from "../../components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
-import Testimonials from "../../components/Testimonials";
-import ClientsPlanetary from "../../components/ClientsPlanetary";
-import WhyChooseUs from "../../components/why-choose-us";
-import WhatMakesUsDifferent from "../../components/what-makes-us";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Testimonials from "@/components/Testimonials";
+import ClientsPlanetary from "@/components/ClientsPlanetary";
+import WhyChooseUs from "@/components/why-choose-us";
+import WhatMakesUsDifferent from "@/components/what-makes-us";
 
 export default function CompanyPage() {
   return (
