@@ -1,11 +1,11 @@
 "use client";
-import Image from "next/image"
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import Testimonials from "@/components/Testimonials"
-import ClientsPlanetary from "@/components/ClientsPlanetary"
-import WhyChooseUs from "@/components/why-choose-us"
-import WhatMakesUsDifferent from "@/components/what-makes-us"
+import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Testimonials from "@/components/Testimonials";
+import ClientsPlanetary from "@/components/ClientsPlanetary";
+import WhyChooseUs from "@/components/why-choose-us";
+import WhatMakesUsDifferent from "@/components/what-makes-us";
 
 export default function CompanyPage() {
   return (
@@ -21,9 +21,12 @@ export default function CompanyPage() {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in">Company</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in">
+              Company
+            </h1>
             <p className="text-xl text-gray-300 animate-fade-in">
-              Learn about our mission, vision, and the team behind Oddiant Techlabs
+              Learn about our mission, vision, and the team behind Oddiant
+              Techlabs
             </p>
           </div>
         </div>
@@ -47,19 +50,25 @@ export default function CompanyPage() {
               </div>
             </div>
             <div>
-              <h2 className="text-3xl text-black font-bold mb-6 animate-fade-in">About Us</h2>
+              <h2 className="text-3xl text-black font-bold mb-6 animate-fade-in">
+                About Us
+              </h2>
               <div className="prose prose-invert max-w-none animate-fade-in">
                 <p className="text-black mb-4">
-                  Oddiant Techlabs LLP is a fast-growing, bootstrapped start-up consultancy, operating with an
-                  asset-light model. Headquartered in Noida, Uttar Pradesh, with a branch office in Bareilly, U.P.,
-                  India, we offer a comprehensive range of services including IT consulting, HR and recruitment
-                  solutions, staffing services, personality development training, and manpower outsourcing.
+                  Oddiant Techlabs LLP is a fast-growing, bootstrapped IT
+                  services start-up focused on empowering talent and personality
+                  through an AI-driven SaaS job assessment web platform for both
+                  organizations and job seekers. Recognized by Startup India,
+                  Start in UP, Invertis Incubation, MSME, GST, and the
+                  Government of India, Oddiant operates on an asset-light model.
+                  We are headquartered in Noida, Uttar Pradesh.
                 </p>
                 <p className="text-black">
-                  As a leading recruitment agency in Noida, we provide end-to-end consulting services to over 20+
-                  clients globally across various industries—such as Information Technology (IT), Non-IT, FinTech,
-                  Sales, Internet businesses, BPO/ITES, NBFCs, SaaS companies, HealthTech, Hospitality, Healthcare, and
-                  Pharmaceuticals.
+                  Our offerings include end-to-end IT consulting, HR and
+                  staffing solutions, personality development training, and
+                  AI-based manpower outsourcing services. With over seven years
+                  of industry experience, our team is known for delivering
+                  impactful, result-oriented solutions.
                 </p>
               </div>
             </div>
@@ -93,8 +102,10 @@ export default function CompanyPage() {
                   Vision
                 </h3>
                 <p className="text-black-300">
-                  Vision To become a global leader in delivering innovative, reliable, and scalable consulting solutions
-                  in IT, HR, and personality development—empowering organizations and individuals.
+                  Vision To become a global leader in delivering innovative,
+                  reliable, and scalable consulting solutions in IT, HR, and
+                  personality development— empowering organizations and
+                  individuals.
                 </p>
               </CardContent>
             </Card>
@@ -124,9 +135,11 @@ export default function CompanyPage() {
                   Mission
                 </h3>
                 <p className="text-black-300">
-                  We are on a mission to empower businesses with best-fit talent and 24/7 strategic support through
-                  customized, scalable solutions. From global staffing to technical hiring and corporate training,
-                  Oddiant Techlabs is your trusted end-to-end partner.
+                  We are on a mission to empower businesses with best-fit talent
+                  and 24/7 strategic support through customized, scalable
+                  solutions. From global staffing to technical hiring and
+                  corporate training, Oddiant Techlabs is your trusted
+                  end-to-end partner.
                 </p>
               </CardContent>
             </Card>
@@ -152,9 +165,12 @@ export default function CompanyPage() {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4 animate-fade-in">Our Team of Experts</h2>
+            <h2 className="text-3xl font-bold mb-4 animate-fade-in">
+              Our Team of Experts
+            </h2>
             <p className="text-gray-400 max-w-2xl mx-auto animate-fade-in">
-              Meet the talented professionals driving innovation and excellence at Oddiant Techlabs
+              Meet the talented professionals driving innovation and excellence
+              at Oddiant Techlabs
             </p>
           </div>
 
@@ -186,9 +202,12 @@ export default function CompanyPage() {
       <section className="py-24 bg-gradient-to-r from-blue-500/20 to-purple-500/20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4 animate-fade-in">Due Diligence & Compliance</h2>
+            <h2 className="text-3xl font-bold mb-4 animate-fade-in">
+              Due Diligence & Compliance
+            </h2>
             <p className="text-gray-400 max-w-2xl mx-auto animate-fade-in">
-              Our commitment to excellence is recognized through various certifications
+              Our commitment to excellence is recognized through various
+              certifications
             </p>
           </div>
 
@@ -200,7 +219,12 @@ export default function CompanyPage() {
                 style={{ animationDelay: `${idx * 0.1}s` }}
               >
                 <div className="relative h-24 w-48 mb-4">
-                  <Image src={cert.logo || "/placeholder.svg"} alt={cert.name} fill className="object-contain" />
+                  <Image
+                    src={cert.logo || "/placeholder.svg"}
+                    alt={cert.name}
+                    fill
+                    className="object-contain"
+                  />
                 </div>
                 <h3 className="text-lg font-medium text-black">{cert.name}</h3>
                 <p className="text-sm text-black mt-2">{cert.description}</p>
@@ -210,7 +234,7 @@ export default function CompanyPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }
 
 const teamMembers = [
@@ -238,7 +262,7 @@ const teamMembers = [
     image: "/images/logos/NK.png",
     initials: "NK",
   },
-]
+];
 
 const certifications = [
   {
@@ -246,29 +270,29 @@ const certifications = [
     logo: "/images/logos/gst-1.png",
     description: "GST Number : 09AAJFO2188G1ZY",
   },
-  // {
-  //   name: "Startup India",
-  //   logo: "/images/logos/startup-india.png",
-  //   description: "Recognized by Department for Promotion of Industry and Internal Trade",
-  // },
+  {
+    name: "Startup India",
+    logo: "/images/logos/startup-india.png",
+    description: "DIPP: 202299",
+  },
   {
     name: "MSME Certified",
     logo: "/images/logos/msme-logo.png",
-    description: "UDYAM REGISTRATION NUMBER: UDYAM-UP-15-0070931",
+    description: "MSME: UDYAM-UP-15-0070931",
   },
-  // {
-  //   name: "ISO Certified",
-  //   logo: "/images/logos/iso-logo.png",
-  //   description: "ISO 9001:2015 Certified for Quality Management",
-  // },
   {
-    name: "INC",
+    name: "Invertis Incubation",
+    logo: "/images/logos/incub-logo.png",
+    description: "Startup Certified with Invertis Incubation",
+  },
+  {
+    name: "MCA",
     logo: "/images/logos/inc-logo.png",
     description: "LLP Identification Number: ACJ-3756",
   },
-  // {
-  //   name: "START IN UP",
-  //   logo: "/images/logos/iso-logo.png",
-  //   description: "ISO 9001:2015 Certified for Quality Management",
-  // },
-]
+  {
+    name: "START IN UP",
+    logo: "/images/logos/upstart_logo.png",
+    description: "Certified Startup with UP Government",
+  },
+];

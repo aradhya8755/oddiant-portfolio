@@ -386,7 +386,7 @@ ${formData.message}
                       </div>
                       <div>
                         <h3 className="text-lg font-medium text-white">Email</h3>
-                        <a href="mailto:hi@oddiant.com" className="text-white hover:underline">hi@oddiant.com</a>
+                        <a href="mailto:hi@oddiant.com" className="text-white hover:underline">- hi@oddiant.com</a>
                       </div>
                     </div>
                     <div className="flex items-start gap-4">
@@ -407,9 +407,9 @@ ${formData.message}
                       </div>
                       <div>
                         <h3 className="text-lg font-medium text-white">Office Location</h3>
-                        <a className="text-white hover:underline" href="https://maps.app.goo.gl/BBFMKuiDnabN2rPE6" target="_blank" rel="noopener noreferrer">D.D Puram Bareilly, Uttar Pradesh, India </a>  
+                        <a className="text-white hover:underline" href="https://maps.app.goo.gl/BBFMKuiDnabN2rPE6" target="_blank" rel="noopener noreferrer">- D.D Puram Bareilly, Uttar Pradesh, India </a>  
                         <br />
-                        <a className="text-white hover:underline" href="https://maps.app.goo.gl/bMVpmZkageHxXuc76" target="_blank" rel="noopener noreferrer">Sector-63 Noida, Uttar Pradesh, India</a>
+                        <a className="text-white hover:underline" href="https://maps.app.goo.gl/bMVpmZkageHxXuc76" target="_blank" rel="noopener noreferrer">- Sector-63 Noida, Uttar Pradesh, India</a>
                       </div>
                     </div>
                   </div>

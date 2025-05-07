@@ -70,16 +70,6 @@ export function Navbar() {
             >
               Contact Us
             </Link>
-
-            {/* Join Now button replacing User and Employers buttons */}
-            <Link href="/join-now">
-              <Button
-                variant="outline"
-                className="bg-black text-white border-white hover:bg-green-500 hover:text-black"
-              >
-                Join Now
-              </Button>
-            </Link>
           </nav>
 
           {/* Mobile Navigation */}
@@ -122,17 +112,6 @@ export function Navbar() {
                 >
                   Contact Us
                 </Link>
-
-                <div className="pt-4">
-                  <Link href="/join-now" onClick={() => setIsOpen(false)}>
-                    <Button
-                      variant="outline"
-                      className="w-full bg-transparent hover:bg-green-500 hover:text-black text-white border-white"
-                    >
-                      Join Now
-                    </Button>
-                  </Link>
-                </div>
               </div>
             </SheetContent>
           </Sheet>
