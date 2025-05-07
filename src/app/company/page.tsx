@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "../../components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Testimonials from "@/components/Testimonials";
 import ClientsPlanetary from "@/components/ClientsPlanetary";
