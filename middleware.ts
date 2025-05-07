@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
 
-    // Check role-based access
+    // Check role-based access - Handle the case where role might be undefined
     if (isAdminProtectedRoute && decoded.role !== "admin") {
       // If not admin, redirect to employee dashboard
       return NextResponse.redirect(new URL("/employee/dashboard", request.url))

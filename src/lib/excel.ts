@@ -87,7 +87,7 @@ export async function generateExcel(newSubmissions: ContactSubmission[]): Promis
 
     // Save the workbook to a buffer
     console.log("Generating Excel buffer...")
-    const buffer = await workbook.xlsx.writeBuffer()
+    const buffer = (await workbook.xlsx.writeBuffer()) as unknown as Buffer
 
     try {
       // Save the Excel file to the file system (for backup purposes)
@@ -170,7 +170,7 @@ async function createFallbackExcel(submissions: ContactSubmission[]): Promise<Bu
     worksheet.getColumn("createdAt").numFmt = "yyyy-mm-dd hh:mm:ss"
 
     // Generate buffer directly without saving to file
-    const buffer = await workbook.xlsx.writeBuffer()
+    const buffer = (await workbook.xlsx.writeBuffer()) as unknown as Buffer
     console.log("Fallback Excel file created successfully")
     return buffer
   } catch (fallbackError) {

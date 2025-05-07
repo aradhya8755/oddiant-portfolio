@@ -1,17 +1,24 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { cookies as getCookies } from "next/headers" 
-import { sign, verify } from "jsonwebtoken"
+import { cookies } from "next/headers"
+import { sign, verify, type JwtPayload } from "jsonwebtoken"
 import bcrypt from "bcryptjs"
 import { connectToDatabase } from "./mongodb"
 import { ObjectId } from "mongodb"
 
-const JWT_SECRET = process.env.JWT_SECRET
+// Ensure JWT_SECRET is always defined
+const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_development"
 const TOKEN_EXPIRATION = "1d"
+
+// Define the token type
+export interface DecodedToken extends JwtPayload {
+  userId: string
+  role?: string
+}
 
 // Add the auth function that was missing
 export async function auth() {
   try {
-    const cookieStore = await getCookies()
+    const cookieStore = await cookies()
     const token = cookieStore.get("auth_token")?.value
 
     if (!token) {
@@ -48,23 +55,28 @@ export async function comparePassword(password: string, hashedPassword: string):
   return bcrypt.compare(password, hashedPassword)
 }
 
-// Generate JWT token
-export function generateToken(userId: string): string {
-  return sign({ userId }, JWT_SECRET, { expiresIn: TOKEN_EXPIRATION })
+// Generate JWT token - Updated to include role
+export function generateToken(userId: string, role?: string): string {
+  // Ensure JWT_SECRET is a string (TypeScript needs this assurance)
+  const secret: string = JWT_SECRET
+  return sign({ userId, role }, secret, { expiresIn: TOKEN_EXPIRATION })
 }
 
-// Verify JWT token
-export function verifyToken(token: string): { userId: string } | null {
+// Verify JWT token - Updated to return the role
+export function verifyToken(token: string): DecodedToken | null {
   try {
-    return verify(token, JWT_SECRET) as { userId: string }
+    // Ensure JWT_SECRET is a string (TypeScript needs this assurance)
+    const secret: string = JWT_SECRET
+    return verify(token, secret) as DecodedToken
   } catch (error) {
+    console.error("Token verification error:", error)
     return null
   }
 }
 
 // Set JWT token in cookies
 export async function setAuthCookie(token: string): Promise<void> {
-  const cookieStore = await getCookies()
+  const cookieStore = await cookies()
   cookieStore.set({
     name: "auth_token",
     value: token,
@@ -78,7 +90,7 @@ export async function setAuthCookie(token: string): Promise<void> {
 
 // Clear auth cookie
 export async function clearAuthCookie(): Promise<void> {
-  const cookieStore = await getCookies()
+  const cookieStore = await cookies()
   cookieStore.delete("auth_token")
 }
 

@@ -1,11 +1,13 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Toaster, toast } from "sonner"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faXTwitter, faFacebookF, faYoutube, faWhatsapp } from '@fortawesome/free-brands-svg-icons'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faXTwitter, faFacebookF, faYoutube, faWhatsapp } from "@fortawesome/free-brands-svg-icons"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -20,12 +22,13 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [useEmailFallback, setUseEmailFallback] = useState(false)
 
-  const handleChange = (e) => {
+  // Fixed the type for the event parameter
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
 
@@ -151,7 +154,7 @@ ${formData.message}
         service: "it-consulting",
         message: "",
       })
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting form:", error)
 
       // More specific error messages
@@ -362,9 +365,13 @@ ${formData.message}
                       </div>
                       <div>
                         <h3 className="text-lg font-medium text-white">Phone</h3>
-                        <a href="tel:+917300875549" className="text-white hover:underline">+91 7300875549</a>
+                        <a href="tel:+917300875549" className="text-white hover:underline">
+                          +91 7300875549
+                        </a>
                         <br />
-                        <a href="tel:+918755498866" className="text-white hover:underline">+91 8755498866</a>
+                        <a href="tel:+918755498866" className="text-white hover:underline">
+                          +91 8755498866
+                        </a>
                       </div>
                     </div>
 
@@ -386,7 +393,9 @@ ${formData.message}
                       </div>
                       <div>
                         <h3 className="text-lg font-medium text-white">Email</h3>
-                        <a href="mailto:hi@oddiant.com" className="text-white hover:underline">- hi@oddiant.com</a>
+                        <a href="mailto:hi@oddiant.com" className="text-white hover:underline">
+                          - hi@oddiant.com
+                        </a>
                       </div>
                     </div>
                     <div className="flex items-start gap-4">
@@ -407,9 +416,23 @@ ${formData.message}
                       </div>
                       <div>
                         <h3 className="text-lg font-medium text-white">Office Location</h3>
-                        <a className="text-white hover:underline" href="https://maps.app.goo.gl/BBFMKuiDnabN2rPE6" target="_blank" rel="noopener noreferrer">- D.D Puram Bareilly, Uttar Pradesh, India </a>  
+                        <a
+                          className="text-white hover:underline"
+                          href="https://maps.app.goo.gl/BBFMKuiDnabN2rPE6"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          - D.D Puram Bareilly, Uttar Pradesh, India{" "}
+                        </a>
                         <br />
-                        <a className="text-white hover:underline" href="https://maps.app.goo.gl/bMVpmZkageHxXuc76" target="_blank" rel="noopener noreferrer">- Sector-63 Noida, Uttar Pradesh, India</a>
+                        <a
+                          className="text-white hover:underline"
+                          href="https://maps.app.goo.gl/bMVpmZkageHxXuc76"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          - Sector-63 Noida, Uttar Pradesh, India
+                        </a>
                       </div>
                     </div>
                   </div>
