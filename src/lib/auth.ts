@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs"
 import { connectToDatabase } from "./mongodb"
 import { ObjectId } from "mongodb"
 
-// Ensure JWT_SECRET is always defined
+
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_development"
 const TOKEN_EXPIRATION = "1d"
 
