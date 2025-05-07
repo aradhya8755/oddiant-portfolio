@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent } from "./ui/card"
 import { CheckCircle, Award, Clock, Users, Shield, Headphones } from "lucide-react"
 
 export default function WhyChooseUs() {
