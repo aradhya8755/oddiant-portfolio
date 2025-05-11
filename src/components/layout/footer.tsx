@@ -9,25 +9,77 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faXTwitter, faFacebookF, faYoutube, faWhatsapp } from "@fortawesome/free-brands-svg-icons"
+import { subscribeToNewsletter } from "@/app/actions/newsletter-actions"
+import { toast } from "sonner"
+import { CheckCircle2, AlertCircle } from "lucide-react"
 
 export function Footer() {
   const [email, setEmail] = useState("")
-  const [subscribed, setSubscribed] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [subscriptionStatus, setSubscriptionStatus] = useState<{
+    success: boolean
+    message: string
+    visible: boolean
+  } | null>(null)
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
     if (email) {
-      // In a real implementation, this would call an API
-      console.log(`Subscribing email: ${email}`)
-      setSubscribed(true)
-      setEmail("")
-      // Reset the subscribed state after 3 seconds
-      setTimeout(() => setSubscribed(false), 3000)
+      try {
+        setIsSubmitting(true)
+        setSubscriptionStatus(null)
+
+        const result = await subscribeToNewsletter(email)
+
+        if (result.success) {
+          // Show success message
+          setSubscriptionStatus({
+            success: true,
+            message: "Thank you for subscribing to our newsletter!",
+            visible: true,
+          })
+          toast.success("Thank you for subscribing to our newsletter!")
+          setEmail("")
+
+          // Hide the message after 5 seconds
+          setTimeout(() => {
+            setSubscriptionStatus((prev) => (prev ? { ...prev, visible: false } : null))
+          }, 5000)
+        } else {
+          // Show error message
+          setSubscriptionStatus({
+            success: false,
+            message: result.message || "Failed to subscribe. Please try again.",
+            visible: true,
+          })
+          toast.error(result.message || "Failed to subscribe. Please try again.")
+
+          // Hide the message after 5 seconds
+          setTimeout(() => {
+            setSubscriptionStatus((prev) => (prev ? { ...prev, visible: false } : null))
+          }, 5000)
+        }
+      } catch (error) {
+        console.error("Subscription error:", error)
+        setSubscriptionStatus({
+          success: false,
+          message: "An error occurred. Please try again later.",
+          visible: true,
+        })
+        toast.error("An error occurred. Please try again later.")
+
+        // Hide the message after 5 seconds
+        setTimeout(() => {
+          setSubscriptionStatus((prev) => (prev ? { ...prev, visible: false } : null))
+        }, 5000)
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
   return (
-    <footer className="bg-gradient-to-r from-black to-blue-950  z-0 text-white py-12">
+    <footer className="bg-gradient-to-r from-black to-blue-950 z-0 text-white py-12">
       <div className="container mx-auto px-4">
         {/* Newsletter Subscription */}
         <div className="mb-12 pb-10 border-b border-black">
@@ -54,11 +106,29 @@ export function Footer() {
                   <Button
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors rounded-md"
+                    disabled={isSubmitting}
                   >
-                    Subscribe
+                    {isSubmitting ? "Subscribing..." : "Subscribe"}
                   </Button>
                 </form>
-                {subscribed && <p className="text-green-500 mt-2 text-sm">Thank you for subscribing!</p>}
+
+                {/* Subscription Status Message */}
+                {subscriptionStatus && subscriptionStatus.visible && (
+                  <div
+                    className={`mt-3 p-3 rounded-md flex items-center gap-2 ${
+                      subscriptionStatus.success
+                        ? "bg-green-100 text-green-800 border border-green-200"
+                        : "bg-red-100 text-red-800 border border-red-200"
+                    }`}
+                  >
+                    {subscriptionStatus.success ? (
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <AlertCircle className="h-5 w-5 text-red-600" />
+                    )}
+                    <span className="text-sm font-medium">{subscriptionStatus.message}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -151,17 +221,16 @@ export function Footer() {
                   HR Consulting
                 </Link>
               </li>
-             <li>
+              <li>
                 <Link href="/solutions#recruitment" className="hover:border-white hover:border-b-2 transition-colors">
-                Recruitment & Manpower Consulting
+                  Recruitment & Manpower Consulting
                 </Link>
               </li>
-                <li>
+              <li>
                 <Link href="/solutions#staffing" className="hover:border-white hover:border-b-2 transition-colors">
                   Personality Development Program (PDP)
                 </Link>
               </li>
-             
             </ul>
           </div>
 
