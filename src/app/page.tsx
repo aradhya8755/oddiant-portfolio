@@ -316,10 +316,10 @@ export default function Home() {
                       <p className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
                         {service.description}
                       </p>
-                      <div className="mt-6 flex items-center text-blue-400 group-hover:text-blue-300 transition-colors duration-300">
+                      {/* <div className="mt-6 flex items-center text-blue-400 group-hover:text-blue-300 transition-colors duration-300">
                         <span className="text-sm font-medium">Learn more</span>
                         <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </div>
+                      </div> */}
                     </CardContent>
                   </Card>
                 </motion.div>

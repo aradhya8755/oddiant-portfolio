@@ -3,15 +3,16 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { Menu, X } from 'lucide-react'
+import { Menu } from "lucide-react"
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [activeLink, setActiveLink] = useState("/")
+  const pathname = usePathname()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,12 +23,14 @@ export function Navbar() {
       }
     }
 
-    // Set active link based on current path
-    setActiveLink(window.location.pathname)
-
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -35,6 +38,14 @@ export function Navbar() {
     { href: "/solutions", label: "Solutions" },
     { href: "/contact", label: "Contact Us" },
   ]
+
+  // Function to check if a link is active
+  const isActiveLink = (href: string) => {
+    if (href === "/") {
+      return pathname === "/"
+    }
+    return pathname.startsWith(href)
+  }
 
   const navVariants = {
     hidden: { opacity: 0, y: -20 },
@@ -69,6 +80,7 @@ export function Navbar() {
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
+          {/* Logo */}
           <motion.div variants={logoVariants} initial="initial" animate="animate" whileHover="hover">
             <Link href="/" className="relative">
               <div style={{ width: "180px", height: "40px", position: "relative" }}>
@@ -85,21 +97,42 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <motion.div key={link.href} variants={itemVariants}>
-                <Link
-                  href={link.href}
-                  className={`relative text-white font-medium transition-colors group overflow-hidden`}
-                >
-                  <span className="relative z-10">{link.label}</span>
-                  <span
-                    className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-green-400 to-blue-500 transform origin-left transition-transform duration-300 ${
-                      activeLink === link.href ? "scale-x-100" : "scale-x-0"
-                    } group-hover:scale-x-100`}
-                  />
-                </Link>
-              </motion.div>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = isActiveLink(link.href)
+
+              return (
+                <motion.div key={link.href} variants={itemVariants}>
+                  <Link
+                    href={link.href}
+                    className="relative text-white font-medium transition-all duration-300 group overflow-hidden hover:text-green-400"
+                  >
+                    <span className="relative z-10">{link.label}</span>
+
+                    {/* Active indicator */}
+                    <motion.span
+                      className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-green-400 to-blue-500"
+                      initial={false}
+                      animate={{
+                        scaleX: isActive ? 1 : 0,
+                        opacity: isActive ? 1 : 0,
+                      }}
+                      transition={{
+                        duration: 0.3,
+                        ease: "easeInOut",
+                      }}
+                      style={{ transformOrigin: "left" }}
+                    />
+
+                    {/* Hover indicator */}
+                    <span
+                      className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-green-400/50 to-blue-500/50 transform origin-left transition-transform duration-300 ${
+                        isActive ? "scale-x-0" : "scale-x-0"
+                      } group-hover:scale-x-100`}
+                    />
+                  </Link>
+                </motion.div>
+              )
+            })}
           </nav>
 
           {/* Mobile Navigation */}
@@ -111,42 +144,76 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent className="bg-gradient-to-b from-black to-zinc-900 text-white border-zinc-800">
               <SheetTitle className="text-white sr-only">Navigation Menu</SheetTitle>
-              <div className="flex justify-end mb-8">
-                {/* <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsOpen(false)}
-                  className="text-white hover:bg-white/10"
-                >
-                  <X size={24} />
-                </Button> */}
+
+              {/* Mobile Logo */}
+              <div className="flex items-center mb-8">
+                <Link href="/" onClick={() => setIsOpen(false)}>
+                  <div style={{ width: "150px", height: "35px", position: "relative" }}>
+                    <Image
+                      src="/images/logos/oddiant-preview.png"
+                      alt="Oddiant Techlabs"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                </Link>
               </div>
 
-              <div className="flex flex-col space-y-8 mt-10">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`text-2xl font-medium transition-all duration-300 hover:text-green-400 ${
-                      activeLink === link.href ? "text-green-400" : "text-white"
-                    }`}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <span
-                        className={`h-0.5 w-5 bg-green-400 ${activeLink === link.href ? "opacity-100" : "opacity-0"}`}
-                      ></span>
-                      <span>{link.label}</span>
-                    </div>
-                  </Link>
-                ))}
+              {/* Mobile Navigation Links */}
+              <div className="flex flex-col space-y-6 mt-10">
+                {navLinks.map((link) => {
+                  const isActive = isActiveLink(link.href)
+
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`text-xl font-medium transition-all duration-300 hover:text-green-400 ${
+                        isActive ? "text-green-400" : "text-white"
+                      }`}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <motion.span
+                          className="h-0.5 bg-green-400"
+                          initial={false}
+                          animate={{
+                            width: isActive ? 20 : 0,
+                            opacity: isActive ? 1 : 0,
+                          }}
+                          transition={{
+                            duration: 0.3,
+                            ease: "easeInOut",
+                          }}
+                        />
+                        <span>{link.label}</span>
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
 
+              {/* Mobile Contact Info */}
+              <div className="mt-12 pt-8 border-t border-zinc-800">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-400">Email</p>
+                    <a href="mailto:hi@oddiant.com" className="text-white hover:text-green-400 transition-colors">
+                      hi@oddiant.com
+                    </a>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Phone</p>
+                    <a href="tel:+917300875549" className="text-white hover:text-green-400 transition-colors">
+                      +91 7300875549
+                    </a>
+                  </div>
+                </div>
+              </div>
             </SheetContent>
           </Sheet>
         </div>
       </div>
     </motion.header>
-
-      )
-    }
+  )
+}

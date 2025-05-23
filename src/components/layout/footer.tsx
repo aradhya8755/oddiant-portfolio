@@ -259,22 +259,47 @@ const XIcon = () => (
               personality development programs.
             </p>
             <p className="text-md font-bold text-white mb-4">Follow Us:</p>
-            <div className="flex space-x-3">
-              {socialLinks.map((link, index) => (
-                <motion.a
-                  key={link.label}
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={link.label}
-                  whileHover={{ scale: 1.1, y: -3 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gradient-to-r from-blue-600 to-green-500 transition-all duration-300"
-                >
-                  {link.icon}
-                </motion.a>
-              ))}
-            </div>
+           <div className="flex space-x-3">
+  {socialLinks.map((link) => {
+    let hoverColor = "";
+
+    switch (link.label) {
+      case "WhatsApp":
+        hoverColor = "hover:bg-green-500";
+        break;
+      case "Facebook":
+        hoverColor = "hover:bg-blue-600";
+        break;
+      case "LinkedIn":
+        hoverColor = "hover:bg-blue-500";
+        break;
+      case "X":
+        hoverColor = "hover:bg-gray-500";
+        break;
+      case "YouTube":
+        hoverColor = "hover:bg-red-600";
+        break;
+      default:
+        hoverColor = "hover:bg-white/20";
+    }
+
+    return (
+      <motion.a
+        key={link.label}
+        href={link.href}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={link.label}
+        whileHover={{ scale: 1.1, y: -3 }}
+        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+        className={`w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 ${hoverColor}`}
+      >
+        {link.icon}
+      </motion.a>
+    );
+  })}
+</div>
+
           </motion.div>
 
           {/* Quick Links */}
