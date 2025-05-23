@@ -514,7 +514,7 @@ ${formData.message}
                           name="name"
                           value={formData.name}
                           onChange={handleChange}
-                          placeholder="John Doe"
+                          placeholder="Write Your Name"
                           className="bg-white/10 border-zinc-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
                           required
                         />
@@ -542,7 +542,7 @@ ${formData.message}
                           type="email"
                           value={formData.email}
                           onChange={handleChange}
-                          placeholder="john.doe@example.com"
+                          placeholder="client@oddiant.com"
                           className="bg-white/10 border-zinc-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
                           required
                         />
