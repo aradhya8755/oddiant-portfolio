@@ -238,7 +238,7 @@ export default function Home() {
                 hidden: { opacity: 0 },
                 visible: { opacity: 1, transition: { delay: 1.5, duration: 1 } },
               }}
-              className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+               className="absolute bottom-10 left-0 right-0 flex justify-center"
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
             >
