@@ -1,15 +1,41 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef } from "react"
-import { motion, useInView } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, AlertCircle, Loader2, MessageSquare, User, AtSign, FileText, Briefcase, ListFilter, Linkedin, Twitter, Facebook, Youtube, Instagram } from 'lucide-react'
+import { useState, useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+  Send,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  MessageSquare,
+  User,
+  AtSign,
+  Briefcase,
+  ListFilter,
+  Linkedin,
+  Twitter,
+  Facebook,
+  Youtube,
+  Instagram,
+} from "lucide-react";
+import { FaXTwitter } from "react-icons/fa6";
+import { FaWhatsapp } from "react-icons/fa";
+
+type ContactDetail = {
+  text: string;
+  link?: string;
+};
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -19,39 +45,43 @@ export default function ContactPage() {
     company: "",
     service: "it-consulting",
     message: "",
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [useEmailFallback, setUseEmailFallback] = useState(false)
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [useEmailFallback, setUseEmailFallback] = useState(false);
   const [formStatus, setFormStatus] = useState<{
-    success: boolean
-    message: string
-    visible: boolean
-  } | null>(null)
+    success: boolean;
+    message: string;
+    visible: boolean;
+  } | null>(null);
 
-  const heroRef = useRef<HTMLDivElement>(null)
-  const isHeroInView = useInView(heroRef, { once: true, amount: 0.2 })
+  const heroRef = useRef<HTMLDivElement>(null);
+  const isHeroInView = useInView(heroRef, { once: true, amount: 0.2 });
 
-  const formRef = useRef<HTMLDivElement>(null)
-  const isFormInView = useInView(formRef, { once: true, amount: 0.2 })
+  const formRef = useRef<HTMLDivElement>(null);
+  const isFormInView = useInView(formRef, { once: true, amount: 0.2 });
 
-  const infoRef = useRef<HTMLDivElement>(null)
-  const isInfoInView = useInView(infoRef, { once: true, amount: 0.2 })
+  const infoRef = useRef<HTMLDivElement>(null);
+  const isInfoInView = useInView(infoRef, { once: true, amount: 0.2 });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setFormStatus(null)
+    e.preventDefault();
+    setIsSubmitting(true);
+    setFormStatus(null);
 
     // If we're using the email fallback, use the fallback form
     if (useEmailFallback) {
       try {
         // Send email directly using mailto link
-        const subject = `Contact Form: ${formData.name} - ${formData.service}`
+        const subject = `Contact Form: ${formData.name} - ${formData.service}`;
         const body = `
 Name: ${formData.name}
 Email: ${formData.email}
@@ -61,21 +91,26 @@ Service: ${formData.service}
 
 Message:
 ${formData.message}
-        `.trim()
+        `.trim();
 
         // Create mailto link
-        const mailtoLink = `mailto:hi@oddiant.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+        const mailtoLink = `mailto:hi@oddiant.com?subject=${encodeURIComponent(
+          subject
+        )}&body=${encodeURIComponent(body)}`;
 
         // Open email client
-        window.location.href = mailtoLink
+        window.location.href = mailtoLink;
 
         // Show success message
         setFormStatus({
           success: true,
-          message: "Email client opened. Please send the email to complete your submission.",
+          message:
+            "Email client opened. Please send the email to complete your submission.",
           visible: true,
-        })
-        toast.success("Email client opened. Please send the email to complete your submission.")
+        });
+        toast.success(
+          "Email client opened. Please send the email to complete your submission."
+        );
 
         // Reset form
         setFormData({
@@ -85,38 +120,41 @@ ${formData.message}
           company: "",
           service: "it-consulting",
           message: "",
-        })
+        });
 
         // Hide the message after 5 seconds
         setTimeout(() => {
-          setFormStatus((prev) => (prev ? { ...prev, visible: false } : null))
-        }, 5000)
+          setFormStatus((prev) => (prev ? { ...prev, visible: false } : null));
+        }, 5000);
       } catch (error) {
-        console.error("Error with fallback form:", error)
+        console.error("Error with fallback form:", error);
         setFormStatus({
           success: false,
-          message: "Could not open email client. Please contact us directly at hi@oddiant.com",
+          message:
+            "Could not open email client. Please contact us directly at hi@oddiant.com",
           visible: true,
-        })
-        toast.error("Could not open email client. Please contact us directly at hi@oddiant.com")
+        });
+        toast.error(
+          "Could not open email client. Please contact us directly at hi@oddiant.com"
+        );
 
         // Hide the message after 5 seconds
         setTimeout(() => {
-          setFormStatus((prev) => (prev ? { ...prev, visible: false } : null))
-        }, 5000)
+          setFormStatus((prev) => (prev ? { ...prev, visible: false } : null));
+        }, 5000);
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
-      return
+      return;
     }
 
     try {
       // Use absolute URL for API endpoint to avoid path issues
-      const apiUrl = "/api/contact"
+      const apiUrl = "/api/contact";
 
       // Use fetch with improved error handling
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
       const response = await fetch(apiUrl, {
         method: "POST",
@@ -125,26 +163,26 @@ ${formData.message}
         },
         body: JSON.stringify(formData),
         signal: controller.signal,
-      })
+      });
 
-      clearTimeout(timeoutId)
+      clearTimeout(timeoutId);
 
       // Check if response is ok first
       if (!response.ok) {
-        let errorMessage = `Server error: ${response.status}. Please try again later.`
+        let errorMessage = `Server error: ${response.status}. Please try again later.`;
 
         try {
-          const errorData = await response.json()
+          const errorData = await response.json();
           if (errorData && errorData.message) {
-            errorMessage = errorData.message
+            errorMessage = errorData.message;
           }
         } catch (e) {
           // If we can't parse JSON, try to get text
           try {
-            const errorText = await response.text()
-            console.error("Error response text:", errorText)
+            const errorText = await response.text();
+            console.error("Error response text:", errorText);
           } catch (textError) {
-            console.error("Could not read error response text:", textError)
+            console.error("Could not read error response text:", textError);
           }
         }
 
@@ -152,38 +190,46 @@ ${formData.message}
         if (response.status === 405) {
           setFormStatus({
             success: false,
-            message: "The contact form is currently unavailable. Would you like to use your email client instead?",
+            message:
+              "The contact form is currently unavailable. Would you like to use your email client instead?",
             visible: true,
-          })
+          });
           toast.error("The contact form is currently unavailable.", {
             action: {
               label: "Use Email",
               onClick: () => setUseEmailFallback(true),
             },
             duration: 10000,
-          })
+          });
         } else {
-          throw new Error(errorMessage)
+          throw new Error(errorMessage);
         }
-        return
+        return;
       }
 
       // Try to parse the response as JSON
-      let data
+      let data;
       try {
-        data = await response.json()
+        data = await response.json();
       } catch (jsonError) {
-        console.error("Error parsing JSON response:", jsonError)
-        throw new Error("Received invalid response from server. Please try again.")
+        console.error("Error parsing JSON response:", jsonError);
+        throw new Error(
+          "Received invalid response from server. Please try again."
+        );
       }
 
       // Show success message
       setFormStatus({
         success: true,
-        message: data?.message || "Message sent successfully! We'll get back to you soon.",
+        message:
+          data?.message ||
+          "Message sent successfully! We'll get back to you soon.",
         visible: true,
-      })
-      toast.success(data?.message || "Message sent successfully! We'll get back to you soon.")
+      });
+      toast.success(
+        data?.message ||
+          "Message sent successfully! We'll get back to you soon."
+      );
 
       // Reset form
       setFormData({
@@ -193,54 +239,69 @@ ${formData.message}
         company: "",
         service: "it-consulting",
         message: "",
-      })
+      });
 
       // Hide the message after 5 seconds
       setTimeout(() => {
-        setFormStatus((prev) => (prev ? { ...prev, visible: false } : null))
-      }, 5000)
+        setFormStatus((prev) => (prev ? { ...prev, visible: false } : null));
+      }, 5000);
     } catch (error: any) {
-      console.error("Error submitting form:", error)
+      console.error("Error submitting form:", error);
 
       // More specific error messages
       if (error.name === "AbortError") {
         setFormStatus({
           success: false,
-          message: "Request timed out. Please check your connection and try again.",
+          message:
+            "Request timed out. Please check your connection and try again.",
           visible: true,
-        })
-        toast.error("Request timed out. Please check your connection and try again.")
-      } else if (error instanceof TypeError && error.message.includes("fetch")) {
+        });
+        toast.error(
+          "Request timed out. Please check your connection and try again."
+        );
+      } else if (
+        error instanceof TypeError &&
+        error.message.includes("fetch")
+      ) {
         setFormStatus({
           success: false,
           message: "Network error. Please check your connection and try again.",
           visible: true,
-        })
-        toast.error("Network error. Please check your connection and try again.")
+        });
+        toast.error(
+          "Network error. Please check your connection and try again."
+        );
         toast.error("Would you like to use your email client instead?", {
           action: {
             label: "Use Email",
             onClick: () => setUseEmailFallback(true),
           },
           duration: 10000,
-        })
+        });
       } else {
         setFormStatus({
           success: false,
-          message: error instanceof Error ? error.message : "Failed to send message. Please try again.",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to send message. Please try again.",
           visible: true,
-        })
-        toast.error(error instanceof Error ? error.message : "Failed to send message. Please try again.")
+        });
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to send message. Please try again."
+        );
       }
 
       // Hide the message after 5 seconds
       setTimeout(() => {
-        setFormStatus((prev) => (prev ? { ...prev, visible: false } : null))
-      }, 5000)
+        setFormStatus((prev) => (prev ? { ...prev, visible: false } : null));
+      }, 5000);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const fadeInUpVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -252,7 +313,7 @@ ${formData.message}
         ease: "easeOut",
       },
     },
-  }
+  };
 
   const staggerContainerVariants = {
     hidden: { opacity: 0 },
@@ -263,7 +324,7 @@ ${formData.message}
         delayChildren: 0.1,
       },
     },
-  }
+  };
 
   const contactInfo = [
     {
@@ -320,7 +381,7 @@ ${formData.message}
       ],
       color: "amber",
     },
-  ]
+  ];
 
   return (
     <div className="bg-black text-white">
@@ -393,7 +454,8 @@ ${formData.message}
               Contact Us
             </h1>
             <p className="text-xl text-gray-300">
-              Get in touch with our team to discuss how we can help your business grow
+              Get in touch with our team to discuss how we can help your
+              business grow
             </p>
           </motion.div>
         </div>
@@ -420,7 +482,10 @@ ${formData.message}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-white flex items-center">
+                      <Label
+                        htmlFor="name"
+                        className="text-white flex items-center"
+                      >
                         <User className="mr-2 h-4 w-4 text-gray-400" />
                         Your Name <span className="text-red-500 ml-1">*</span>
                       </Label>
@@ -444,7 +509,10 @@ ${formData.message}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-white flex items-center">
+                      <Label
+                        htmlFor="email"
+                        className="text-white flex items-center"
+                      >
                         <AtSign className="mr-2 h-4 w-4 text-gray-400" />
                         Your Email <span className="text-red-500 ml-1">*</span>
                       </Label>
@@ -471,7 +539,10 @@ ${formData.message}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-white flex items-center">
+                      <Label
+                        htmlFor="phone"
+                        className="text-white flex items-center"
+                      >
                         <Phone className="mr-2 h-4 w-4 text-gray-400" />
                         Phone Number
                       </Label>
@@ -495,7 +566,10 @@ ${formData.message}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="company" className="text-white flex items-center">
+                      <Label
+                        htmlFor="company"
+                        className="text-white flex items-center"
+                      >
                         <Briefcase className="mr-2 h-4 w-4 text-gray-400" />
                         Company Name
                       </Label>
@@ -519,9 +593,13 @@ ${formData.message}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="service" className="text-white flex items-center">
+                    <Label
+                      htmlFor="service"
+                      className="text-white flex items-center"
+                    >
                       <ListFilter className="mr-2 h-4 w-4 text-gray-400" />
-                      Service of Interest <span className="text-red-500 ml-1">*</span>
+                      Service of Interest{" "}
+                      <span className="text-red-500 ml-1">*</span>
                     </Label>
                     <div className="relative">
                       <select
@@ -532,11 +610,21 @@ ${formData.message}
                         required
                         className="w-full px-4 py-2 bg-white/10 border border-zinc-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                       >
-                        <option value="it-consulting">IT Consulting</option>
-                        <option value="hr-services">HR Services</option>
-                        <option value="recruitment">Recruitment</option>
-                        <option value="staffing">Staffing</option>
-                        <option value="other">Other</option>
+                        <option className="text-black" value="it-consulting">
+                          IT Consulting
+                        </option>
+                        <option className="text-black" value="hr-services">
+                          HR Services
+                        </option>
+                        <option className="text-black" value="recruitment">
+                          Recruitment
+                        </option>
+                        <option className="text-black" value="staffing">
+                          Staffing
+                        </option>
+                        <option className="text-black" value="other">
+                          Other
+                        </option>
                       </select>
                       <motion.span
                         initial={{ width: "0%" }}
@@ -548,7 +636,10 @@ ${formData.message}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="message" className="text-white flex items-center">
+                    <Label
+                      htmlFor="message"
+                      className="text-white flex items-center"
+                    >
                       <MessageSquare className="mr-2 h-4 w-4 text-gray-400" />
                       Your Message <span className="text-red-500 ml-1">*</span>
                     </Label>
@@ -588,17 +679,21 @@ ${formData.message}
                       ) : (
                         <AlertCircle className="h-5 w-5 text-red-400" />
                       )}
-                      <span className="text-sm font-medium">{formStatus.message}</span>
-                      {!formStatus.success && !useEmailFallback && formStatus.message.includes("unavailable") && (
-                        <Button
-                          type="button"
-                          variant="link"
-                          className="text-blue-400 hover:text-blue-300 p-0 h-auto"
-                          onClick={() => setUseEmailFallback(true)}
-                        >
-                          Use Email Client
-                        </Button>
-                      )}
+                      <span className="text-sm font-medium">
+                        {formStatus.message}
+                      </span>
+                      {!formStatus.success &&
+                        !useEmailFallback &&
+                        formStatus.message.includes("unavailable") && (
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="text-blue-400 hover:text-blue-300 p-0 h-auto"
+                            onClick={() => setUseEmailFallback(true)}
+                          >
+                            Use Email Client
+                          </Button>
+                        )}
                     </motion.div>
                   )}
 
@@ -610,11 +705,15 @@ ${formData.message}
                     {isSubmitting ? (
                       <span className="flex items-center justify-center">
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {useEmailFallback ? "Opening Email Client..." : "Sending..."}
+                        {useEmailFallback
+                          ? "Opening Email Client..."
+                          : "Sending..."}
                       </span>
                     ) : (
                       <span className="flex items-center justify-center">
-                        {useEmailFallback ? "Send via Email Client" : "Send Message"}
+                        {useEmailFallback
+                          ? "Send via Email Client"
+                          : "Send Message"}
                         <Send className="ml-2 h-4 w-4" />
                       </span>
                     )}
@@ -676,8 +775,8 @@ ${formData.message}
                   Contact Information
                 </h2>
                 <p className="text-gray-300 mb-8">
-                  We'd love to hear from you. Reach out to us through any of the following channels or fill out the
-                  contact form.
+                  We'd love to hear from you. Reach out to us through any of the
+                  following channels or fill out the contact form.
                 </p>
               </motion.div>
 
@@ -688,7 +787,7 @@ ${formData.message}
                     green: "bg-green-500/20 text-green-400",
                     purple: "bg-purple-500/20 text-purple-400",
                     amber: "bg-amber-500/20 text-amber-400",
-                  }
+                  };
 
                   return (
                     <motion.div
@@ -699,21 +798,33 @@ ${formData.message}
                       <div className="flex items-start gap-4">
                         <div
                           className={`w-10 h-10 rounded-full ${
-                            colorClasses[info.color as keyof typeof colorClasses]
+                            colorClasses[
+                              info.color as keyof typeof colorClasses
+                            ]
                           } flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}
                         >
                           {info.icon}
                         </div>
                         <div>
-                          <h3 className="text-lg font-medium text-white mb-2">{info.title}</h3>
+                          <h3 className="text-lg font-medium text-white mb-2">
+                            {info.title}
+                          </h3>
                           <div className="space-y-1">
                             {info.details.map((detail, idx) => (
                               <div key={idx}>
                                 {detail.link ? (
                                   <a
                                     href={detail.link}
-                                    target={detail.link.startsWith("http") ? "_blank" : undefined}
-                                    rel={detail.link.startsWith("http") ? "noopener noreferrer" : undefined}
+                                    target={
+                                      detail.link.startsWith("http")
+                                        ? "_blank"
+                                        : undefined
+                                    }
+                                    rel={
+                                      detail.link.startsWith("http")
+                                        ? "noopener noreferrer"
+                                        : undefined
+                                    }
                                     className="text-gray-400 hover:text-white transition-colors"
                                   >
                                     {detail.text}
@@ -727,14 +838,16 @@ ${formData.message}
                         </div>
                       </div>
                     </motion.div>
-                  )
+                  );
                 })}
               </div>
 
               {/* Map */}
               <motion.div variants={fadeInUpVariants} className="mt-12">
                 <div className="bg-white/5 backdrop-blur-sm border border-zinc-800 rounded-xl p-6 overflow-hidden">
-                  <h3 className="text-lg font-medium text-white mb-4">Find Us</h3>
+                  <h3 className="text-lg font-medium text-white mb-4">
+                    Find Us
+                  </h3>
                   <div className="relative h-[300px] rounded-lg overflow-hidden">
                     <iframe
                       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.0011089455!2d77.3772!3d28.6273!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5f25ac323e5%3A0x9e06f1aaca9e8e4a!2sSector%2063%2C%20Noida%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1621234567890!5m2!1sen!2sin"
@@ -752,7 +865,9 @@ ${formData.message}
 
               {/* Social Media */}
               <motion.div variants={fadeInUpVariants} className="mt-8">
-                <h3 className="text-lg font-medium text-white mb-4">Connect With Us</h3>
+                <h3 className="text-lg font-medium text-white mb-4">
+                  Connect With Us
+                </h3>
                 <div className="flex space-x-4">
                   <a
                     href="https://linkedin.com"
@@ -768,9 +883,9 @@ ${formData.message}
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Twitter"
-                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-500 transition-all duration-300"
+                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gradient-to-r hover:from-gray-400 hover:to-gray-500 transition-all duration-300"
                   >
-                    <Twitter className="w-5 h-5 text-white" />
+                    <FaXTwitter className="w-5 h-5 text-white" />
                   </a>
                   <a
                     href="https://facebook.com"
@@ -791,13 +906,13 @@ ${formData.message}
                     <Youtube className="w-5 h-5 text-white" />
                   </a>
                   <a
-                    href="https://instagram.com"
+                    href="https://wa.me/9198xxxxxxxx"
                     target="_blank"
                     rel="noreferrer"
-                    aria-label="Instagram"
-                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-500 transition-all duration-300"
+                    aria-label="WhatsApp"
+                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-green-500 transition-all duration-300"
                   >
-                    <Instagram className="w-5 h-5 text-white" />
+                    <FaWhatsapp className="w-5 h-5 text-white" />
                   </a>
                 </div>
               </motion.div>
@@ -806,5 +921,5 @@ ${formData.message}
         </div>
       </section>
     </div>
-  )
+  );
 }
