@@ -2,12 +2,14 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
+import { motion, useInView } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Toaster, toast } from "sonner"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faXTwitter, faFacebookF, faYoutube, faWhatsapp } from "@fortawesome/free-brands-svg-icons"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, AlertCircle, Loader2, MessageSquare, User, AtSign, FileText, Briefcase, ListFilter, Linkedin, Twitter, Facebook, Youtube, Instagram } from 'lucide-react'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -18,19 +20,32 @@ export default function ContactPage() {
     service: "it-consulting",
     message: "",
   })
-
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [useEmailFallback, setUseEmailFallback] = useState(false)
+  const [formStatus, setFormStatus] = useState<{
+    success: boolean
+    message: string
+    visible: boolean
+  } | null>(null)
 
-  // Fixed the type for the event parameter
+  const heroRef = useRef<HTMLDivElement>(null)
+  const isHeroInView = useInView(heroRef, { once: true, amount: 0.2 })
+
+  const formRef = useRef<HTMLDivElement>(null)
+  const isFormInView = useInView(formRef, { once: true, amount: 0.2 })
+
+  const infoRef = useRef<HTMLDivElement>(null)
+  const isInfoInView = useInView(infoRef, { once: true, amount: 0.2 })
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setFormStatus(null)
 
     // If we're using the email fallback, use the fallback form
     if (useEmailFallback) {
@@ -54,6 +69,12 @@ ${formData.message}
         // Open email client
         window.location.href = mailtoLink
 
+        // Show success message
+        setFormStatus({
+          success: true,
+          message: "Email client opened. Please send the email to complete your submission.",
+          visible: true,
+        })
         toast.success("Email client opened. Please send the email to complete your submission.")
 
         // Reset form
@@ -65,9 +86,24 @@ ${formData.message}
           service: "it-consulting",
           message: "",
         })
+
+        // Hide the message after 5 seconds
+        setTimeout(() => {
+          setFormStatus((prev) => (prev ? { ...prev, visible: false } : null))
+        }, 5000)
       } catch (error) {
         console.error("Error with fallback form:", error)
+        setFormStatus({
+          success: false,
+          message: "Could not open email client. Please contact us directly at hi@oddiant.com",
+          visible: true,
+        })
         toast.error("Could not open email client. Please contact us directly at hi@oddiant.com")
+
+        // Hide the message after 5 seconds
+        setTimeout(() => {
+          setFormStatus((prev) => (prev ? { ...prev, visible: false } : null))
+        }, 5000)
       } finally {
         setIsSubmitting(false)
       }
@@ -75,12 +111,8 @@ ${formData.message}
     }
 
     try {
-      console.log("Submitting form data:", formData)
-
       // Use absolute URL for API endpoint to avoid path issues
       const apiUrl = "/api/contact"
-
-      console.log("Submitting to API URL:", apiUrl)
 
       // Use fetch with improved error handling
       const controller = new AbortController()
@@ -96,8 +128,6 @@ ${formData.message}
       })
 
       clearTimeout(timeoutId)
-
-      console.log("Response status:", response.status)
 
       // Check if response is ok first
       if (!response.ok) {
@@ -120,7 +150,12 @@ ${formData.message}
 
         // If we get a 405 error, offer to use the email fallback
         if (response.status === 405) {
-          toast.error("The contact form is currently unavailable. Would you like to use your email client instead?", {
+          setFormStatus({
+            success: false,
+            message: "The contact form is currently unavailable. Would you like to use your email client instead?",
+            visible: true,
+          })
+          toast.error("The contact form is currently unavailable.", {
             action: {
               label: "Use Email",
               onClick: () => setUseEmailFallback(true),
@@ -137,12 +172,17 @@ ${formData.message}
       let data
       try {
         data = await response.json()
-        console.log("Response data:", data)
       } catch (jsonError) {
         console.error("Error parsing JSON response:", jsonError)
         throw new Error("Received invalid response from server. Please try again.")
       }
 
+      // Show success message
+      setFormStatus({
+        success: true,
+        message: data?.message || "Message sent successfully! We'll get back to you soon.",
+        visible: true,
+      })
       toast.success(data?.message || "Message sent successfully! We'll get back to you soon.")
 
       // Reset form
@@ -154,13 +194,28 @@ ${formData.message}
         service: "it-consulting",
         message: "",
       })
+
+      // Hide the message after 5 seconds
+      setTimeout(() => {
+        setFormStatus((prev) => (prev ? { ...prev, visible: false } : null))
+      }, 5000)
     } catch (error: any) {
       console.error("Error submitting form:", error)
 
       // More specific error messages
       if (error.name === "AbortError") {
+        setFormStatus({
+          success: false,
+          message: "Request timed out. Please check your connection and try again.",
+          visible: true,
+        })
         toast.error("Request timed out. Please check your connection and try again.")
       } else if (error instanceof TypeError && error.message.includes("fetch")) {
+        setFormStatus({
+          success: false,
+          message: "Network error. Please check your connection and try again.",
+          visible: true,
+        })
         toast.error("Network error. Please check your connection and try again.")
         toast.error("Would you like to use your email client instead?", {
           action: {
@@ -170,124 +225,312 @@ ${formData.message}
           duration: 10000,
         })
       } else {
+        setFormStatus({
+          success: false,
+          message: error instanceof Error ? error.message : "Failed to send message. Please try again.",
+          visible: true,
+        })
         toast.error(error instanceof Error ? error.message : "Failed to send message. Please try again.")
       }
+
+      // Hide the message after 5 seconds
+      setTimeout(() => {
+        setFormStatus((prev) => (prev ? { ...prev, visible: false } : null))
+      }, 5000)
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const fadeInUpVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+      },
+    },
+  }
+
+  const staggerContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
+      },
+    },
+  }
+
+  const contactInfo = [
+    {
+      icon: <MapPin className="w-5 h-5" />,
+      title: "Office Locations",
+      details: [
+        {
+          text: "D.D Puram Bareilly, Uttar Pradesh",
+          link: "https://maps.app.goo.gl/BBFMKuiDnabN2rPE6",
+        },
+        {
+          text: "Sector-63 Noida, Uttar Pradesh",
+          link: "https://maps.app.goo.gl/bMVpmZkageHxXuc76",
+        },
+      ],
+      color: "blue",
+    },
+    {
+      icon: <Mail className="w-5 h-5" />,
+      title: "Email",
+      details: [
+        {
+          text: "hi@oddiant.com",
+          link: "mailto:hi@oddiant.com",
+        },
+      ],
+      color: "green",
+    },
+    {
+      icon: <Phone className="w-5 h-5" />,
+      title: "Phone",
+      details: [
+        {
+          text: "+91 7300875549",
+          link: "tel:+917300875549",
+        },
+        {
+          text: "+91 8755498866",
+          link: "tel:+918755498866",
+        },
+      ],
+      color: "purple",
+    },
+    {
+      icon: <Clock className="w-5 h-5" />,
+      title: "Business Hours",
+      details: [
+        {
+          text: "Mon-Fri: 9:30 AM - 6:30 PM IST",
+        },
+        {
+          text: "Sat-Sun: Closed",
+        },
+      ],
+      color: "amber",
+    },
+  ]
+
   return (
     <div className="bg-black text-white">
-      <Toaster position="top-center" />
-
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden">
+      <section ref={heroRef} className="relative pt-32 pb-20 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-zinc-900/30" />
-          <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full filter blur-3xl" />
-          <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full filter blur-3xl" />
+
+          {/* Animated particles */}
+          <div className="absolute top-0 left-0 w-full h-full">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full bg-white opacity-20"
+                style={{
+                  width: Math.random() * 4 + 1,
+                  height: Math.random() * 4 + 1,
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                }}
+                animate={{
+                  y: [0, Math.random() * -100 - 50],
+                  opacity: [0, 0.5, 0],
+                }}
+                transition={{
+                  duration: Math.random() * 10 + 10,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "linear",
+                }}
+              />
+            ))}
+          </div>
+
+          <motion.div
+            className="absolute top-1/3 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full filter blur-3xl"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.15, 0.1],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Number.POSITIVE_INFINITY,
+              repeatType: "reverse",
+            }}
+          />
+          <motion.div
+            className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full filter blur-3xl"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.15, 0.1],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Number.POSITIVE_INFINITY,
+              repeatType: "reverse",
+              delay: 1,
+            }}
+          />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact Us</h1>
+          <motion.div
+            initial="hidden"
+            animate={isHeroInView ? "visible" : "hidden"}
+            variants={fadeInUpVariants}
+            className="max-w-3xl mx-auto text-center"
+          >
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Contact Us
+            </h1>
             <p className="text-xl text-gray-300">
               Get in touch with our team to discuss how we can help your business grow
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Contact Form and Info Section */}
-      <section className="py-24 bg-gradient-to-r from-blue-500/20 to-purple-500/20">
+      <section className="py-16 bg-gradient-to-b from-zinc-900 to-black">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             {/* Contact Form */}
-            <div className="order-2 lg:order-1">
-              <Card className="bg-gray-100 border-zinc-700">
-                <CardContent className="pt-6">
-                  <h2 className="text-2xl font-bold mb-6 text-black">Send us a message</h2>
+            <motion.div
+              ref={formRef}
+              initial="hidden"
+              animate={isFormInView ? "visible" : "hidden"}
+              variants={fadeInUpVariants}
+              className="relative"
+            >
+              <div className="bg-white/5 backdrop-blur-sm border border-zinc-800 rounded-2xl p-8 shadow-xl">
+                <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent flex items-center">
+                  <MessageSquare className="mr-2 h-6 w-6 text-blue-400" />
+                  Send Us a Message
+                </h2>
 
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label htmlFor="name" className="text-sm font-medium text-black">
-                          Your Name <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-white flex items-center">
+                        <User className="mr-2 h-4 w-4 text-gray-400" />
+                        Your Name <span className="text-red-500 ml-1">*</span>
+                      </Label>
+                      <div className="relative">
+                        <Input
                           id="name"
                           name="name"
                           value={formData.name}
                           onChange={handleChange}
+                          placeholder="John Doe"
+                          className="bg-white/10 border-zinc-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
                           required
-                          className="w-full px-4 py-2 bg-white border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                          placeholder="Enter Your Name"
                         />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label htmlFor="email" className="text-sm font-medium text-black">
-                          Email Address <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
-                          className="w-full px-4 py-2 bg-white border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                          placeholder="user@oddiant.com"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label htmlFor="phone" className="text-sm font-medium text-black">
-                          Phone Number
-                        </label>
-                        <input
-                          type="tel"
-                          id="phone"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          className="w-full px-4 py-2 bg-white border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                          placeholder="+91 1234567890"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label htmlFor="company" className="text-sm font-medium text-black">
-                          Company Name
-                        </label>
-                        <input
-                          type="text"
-                          id="company"
-                          name="company"
-                          value={formData.company}
-                          onChange={handleChange}
-                          className="w-full px-4 py-2 bg-white border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                          placeholder="Your Company"
+                        <motion.span
+                          initial={{ width: "0%" }}
+                          animate={{ width: formData.name ? "100%" : "0%" }}
+                          transition={{ duration: 0.3 }}
+                          className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor="service" className="text-sm font-medium text-black">
-                        Service of Interest <span className="text-red-500">*</span>
-                      </label>
+                      <Label htmlFor="email" className="text-white flex items-center">
+                        <AtSign className="mr-2 h-4 w-4 text-gray-400" />
+                        Your Email <span className="text-red-500 ml-1">*</span>
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          placeholder="john.doe@example.com"
+                          className="bg-white/10 border-zinc-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
+                          required
+                        />
+                        <motion.span
+                          initial={{ width: "0%" }}
+                          animate={{ width: formData.email ? "100%" : "0%" }}
+                          transition={{ duration: 0.3 }}
+                          className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-white flex items-center">
+                        <Phone className="mr-2 h-4 w-4 text-gray-400" />
+                        Phone Number
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          placeholder="+91 1234567890"
+                          className="bg-white/10 border-zinc-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
+                        />
+                        <motion.span
+                          initial={{ width: "0%" }}
+                          animate={{ width: formData.phone ? "100%" : "0%" }}
+                          transition={{ duration: 0.3 }}
+                          className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="company" className="text-white flex items-center">
+                        <Briefcase className="mr-2 h-4 w-4 text-gray-400" />
+                        Company Name
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="company"
+                          name="company"
+                          value={formData.company}
+                          onChange={handleChange}
+                          placeholder="Your Company"
+                          className="bg-white/10 border-zinc-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
+                        />
+                        <motion.span
+                          initial={{ width: "0%" }}
+                          animate={{ width: formData.company ? "100%" : "0%" }}
+                          transition={{ duration: 0.3 }}
+                          className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="service" className="text-white flex items-center">
+                      <ListFilter className="mr-2 h-4 w-4 text-gray-400" />
+                      Service of Interest <span className="text-red-500 ml-1">*</span>
+                    </Label>
+                    <div className="relative">
                       <select
                         id="service"
                         name="service"
                         value={formData.service}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-2 bg-white border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        className="w-full px-4 py-2 bg-white/10 border border-zinc-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                       >
                         <option value="it-consulting">IT Consulting</option>
                         <option value="hr-services">HR Services</option>
@@ -295,210 +538,270 @@ ${formData.message}
                         <option value="staffing">Staffing</option>
                         <option value="other">Other</option>
                       </select>
+                      <motion.span
+                        initial={{ width: "0%" }}
+                        animate={{ width: formData.service ? "100%" : "0%" }}
+                        transition={{ duration: 0.3 }}
+                        className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"
+                      />
                     </div>
+                  </div>
 
-                    <div className="space-y-2">
-                      <label htmlFor="message" className="text-sm font-medium text-black">
-                        Your Message <span className="text-red-500">*</span>
-                      </label>
-                      <textarea
+                  <div className="space-y-2">
+                    <Label htmlFor="message" className="text-white flex items-center">
+                      <MessageSquare className="mr-2 h-4 w-4 text-gray-400" />
+                      Your Message <span className="text-red-500 ml-1">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Textarea
                         id="message"
                         name="message"
                         value={formData.message}
                         onChange={handleChange}
+                        placeholder="Please describe how we can help you..."
+                        className="min-h-[150px] bg-white/10 border-zinc-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
                         required
-                        rows={5}
-                        className="w-full px-4 py-2 bg-white border border-zinc-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                        placeholder="Tell us about your project or inquiry..."
-                      ></textarea>
+                      />
+                      <motion.span
+                        initial={{ width: "0%" }}
+                        animate={{ width: formData.message ? "100%" : "0%" }}
+                        transition={{ duration: 0.3 }}
+                        className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"
+                      />
                     </div>
+                  </div>
 
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-6 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                  {formStatus && formStatus.visible && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className={`p-4 rounded-md flex items-center gap-2 ${
+                        formStatus.success
+                          ? "bg-green-900/30 text-green-300 border border-green-800"
+                          : "bg-red-900/30 text-red-300 border border-red-800"
+                      }`}
                     >
-                      {isSubmitting ? "Sending..." : useEmailFallback ? "Send via Email Client" : "Send Message"}
-                    </Button>
-
-                    {!useEmailFallback && (
-                      <p className="text-xs text-center text-black mt-2">
-                        Having trouble with the form?{" "}
-                        <button
+                      {formStatus.success ? (
+                        <CheckCircle2 className="h-5 w-5 text-green-400" />
+                      ) : (
+                        <AlertCircle className="h-5 w-5 text-red-400" />
+                      )}
+                      <span className="text-sm font-medium">{formStatus.message}</span>
+                      {!formStatus.success && !useEmailFallback && formStatus.message.includes("unavailable") && (
+                        <Button
                           type="button"
+                          variant="link"
+                          className="text-blue-400 hover:text-blue-300 p-0 h-auto"
                           onClick={() => setUseEmailFallback(true)}
-                          className="text-blue-600 hover:underline"
                         >
-                          Use email client instead
-                        </button>
-                      </p>
+                          Use Email Client
+                        </Button>
+                      )}
+                    </motion.div>
+                  )}
+
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium transition-all duration-300 rounded-md py-6"
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center justify-center">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {useEmailFallback ? "Opening Email Client..." : "Sending..."}
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center">
+                        {useEmailFallback ? "Send via Email Client" : "Send Message"}
+                        <Send className="ml-2 h-4 w-4" />
+                      </span>
                     )}
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
+                  </Button>
+
+                  {!useEmailFallback && (
+                    <p className="text-xs text-center text-gray-400 mt-2">
+                      Having trouble with the form?{" "}
+                      <button
+                        type="button"
+                        onClick={() => setUseEmailFallback(true)}
+                        className="text-blue-400 hover:text-blue-300 hover:underline"
+                      >
+                        Use email client instead
+                      </button>
+                    </p>
+                  )}
+                </form>
+              </div>
+
+              {/* Decorative elements */}
+              <motion.div
+                className="absolute -top-8 -right-8 w-24 h-24 bg-blue-500/30 rounded-full filter blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                }}
+              />
+              <motion.div
+                className="absolute -bottom-8 -left-8 w-24 h-24 bg-purple-500/30 rounded-full filter blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                  delay: 1,
+                }}
+              />
+            </motion.div>
 
             {/* Contact Information */}
-            <div className="order-1 lg:order-2">
-              <div className="space-y-8">
-                <div>
-                  <h2 className="text-2xl text-white font-bold mb-6">Contact Information</h2>
-                  <p className="text-white mb-8">
-                    Get in touch with us for any inquiries about our services, partnerships, or career opportunities.
-                  </p>
+            <motion.div
+              ref={infoRef}
+              initial="hidden"
+              animate={isInfoInView ? "visible" : "hidden"}
+              variants={staggerContainerVariants}
+              className="space-y-8"
+            >
+              <motion.div variants={fadeInUpVariants}>
+                <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  Contact Information
+                </h2>
+                <p className="text-gray-300 mb-8">
+                  We'd love to hear from you. Reach out to us through any of the following channels or fill out the
+                  contact form.
+                </p>
+              </motion.div>
 
-                  <div className="space-y-6">
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 flex-shrink-0">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="w-5 h-5"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {contactInfo.map((info, index) => {
+                  const colorClasses = {
+                    blue: "bg-blue-500/20 text-blue-400",
+                    green: "bg-green-500/20 text-green-400",
+                    purple: "bg-purple-500/20 text-purple-400",
+                    amber: "bg-amber-500/20 text-amber-400",
+                  }
+
+                  return (
+                    <motion.div
+                      key={info.title}
+                      variants={fadeInUpVariants}
+                      className="bg-white/5 backdrop-blur-sm border border-zinc-800 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 hover:shadow-lg group"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div
+                          className={`w-10 h-10 rounded-full ${
+                            colorClasses[info.color as keyof typeof colorClasses]
+                          } flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}
                         >
-                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                        </svg>
+                          {info.icon}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-medium text-white mb-2">{info.title}</h3>
+                          <div className="space-y-1">
+                            {info.details.map((detail, idx) => (
+                              <div key={idx}>
+                                {detail.link ? (
+                                  <a
+                                    href={detail.link}
+                                    target={detail.link.startsWith("http") ? "_blank" : undefined}
+                                    rel={detail.link.startsWith("http") ? "noopener noreferrer" : undefined}
+                                    className="text-gray-400 hover:text-white transition-colors"
+                                  >
+                                    {detail.text}
+                                  </a>
+                                ) : (
+                                  <p className="text-gray-400">{detail.text}</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-medium text-white">Phone</h3>
-                        <a href="tel:+917300875549" className="text-white hover:underline">
-                          +91 7300875549
-                        </a>
-                        <br />
-                        <a href="tel:+918755498866" className="text-white hover:underline">
-                          +91 8755498866
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400 flex-shrink-0">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="w-5 h-5"
-                        >
-                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                          <polyline points="22,6 12,13 2,6" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-medium text-white">Email</h3>
-                        <a href="mailto:hi@oddiant.com" className="text-white hover:underline">
-                          - hi@oddiant.com
-                        </a>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 flex-shrink-0">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="w-5 h-5"
-                        >
-                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                          <circle cx="12" cy="10" r="3" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-medium text-white">Office Location</h3>
-                        <a
-                          className="text-white hover:underline"
-                          href="https://maps.app.goo.gl/BBFMKuiDnabN2rPE6"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          - D.D Puram Bareilly, Uttar Pradesh, India{" "}
-                        </a>
-                        <br />
-                        <a
-                          className="text-white hover:underline"
-                          href="https://maps.app.goo.gl/bMVpmZkageHxXuc76"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          - Sector-63 Noida, Uttar Pradesh, India
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="animate-fade-in pt-8">
-                  <h3 className="text-xl text-white font-bold mb-4">Business Hours</h3>
-                  <div className="space-y-2 text-white">
-                    <p className="flex justify-between">
-                      <span>Monday - Friday:</span>
-                      <span>9:30 AM - 6:30 PM IST</span>
-                    </p>
-                    <p className="flex justify-between">
-                      <span>Saturday:</span>
-                      <span>Closed</span>
-                    </p>
-                    <p className="flex justify-between">
-                      <span>Sunday:</span>
-                      <span>Closed</span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="animate-fade-in pt-4">
-                  <h3 className="text-xl text-white font-bold mb-4">Follow Us</h3>
-                  <div className="flex space-x-4">
-                    <a href="https://linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="w-6 h-6 text-blue-500 hover:text-white transition-colors"
-                      >
-                        <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
-                      </svg>
-                    </a>
-                    <a href="https://twitter.com" target="_blank" rel="noreferrer" aria-label="Twitter">
-                      <FontAwesomeIcon
-                        icon={faXTwitter}
-                        className="w-6 h-6 text-zinc-400 hover:text-white transition-colors"
-                      />
-                    </a>
-                    <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook">
-                      <FontAwesomeIcon
-                        icon={faFacebookF}
-                        className="w-6 h-6 text-blue-500 hover:text-white transition-colors"
-                      />
-                    </a>
-
-                    <a href="https://youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube">
-                      <FontAwesomeIcon
-                        icon={faYoutube}
-                        className="w-6 h-6 text-red-600 hover:text-white transition-colors"
-                      />
-                    </a>
-
-                    <a href="https://wa.me/your-number" target="_blank" rel="noreferrer" aria-label="WhatsApp">
-                      <FontAwesomeIcon
-                        icon={faWhatsapp}
-                        className="w-6 h-6 text-green-400 hover:text-white transition-colors"
-                      />
-                    </a>
-                  </div>
-                </div>
+                    </motion.div>
+                  )
+                })}
               </div>
-            </div>
+
+              {/* Map */}
+              <motion.div variants={fadeInUpVariants} className="mt-12">
+                <div className="bg-white/5 backdrop-blur-sm border border-zinc-800 rounded-xl p-6 overflow-hidden">
+                  <h3 className="text-lg font-medium text-white mb-4">Find Us</h3>
+                  <div className="relative h-[300px] rounded-lg overflow-hidden">
+                    <iframe
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.0011089455!2d77.3772!3d28.6273!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5f25ac323e5%3A0x9e06f1aaca9e8e4a!2sSector%2063%2C%20Noida%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1621234567890!5m2!1sen!2sin"
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen={false}
+                      loading="lazy"
+                      title="Google Maps showing Oddiant Techlabs location"
+                      className="grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+                    ></iframe>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Social Media */}
+              <motion.div variants={fadeInUpVariants} className="mt-8">
+                <h3 className="text-lg font-medium text-white mb-4">Connect With Us</h3>
+                <div className="flex space-x-4">
+                  <a
+                    href="https://linkedin.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="LinkedIn"
+                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-500 transition-all duration-300"
+                  >
+                    <Linkedin className="w-5 h-5 text-white" />
+                  </a>
+                  <a
+                    href="https://twitter.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Twitter"
+                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-500 transition-all duration-300"
+                  >
+                    <Twitter className="w-5 h-5 text-white" />
+                  </a>
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Facebook"
+                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
+                  >
+                    <Facebook className="w-5 h-5 text-white" />
+                  </a>
+                  <a
+                    href="https://youtube.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="YouTube"
+                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gradient-to-r hover:from-red-600 hover:to-red-700 transition-all duration-300"
+                  >
+                    <Youtube className="w-5 h-5 text-white" />
+                  </a>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Instagram"
+                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-500 transition-all duration-300"
+                  >
+                    <Instagram className="w-5 h-5 text-white" />
+                  </a>
+                </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>

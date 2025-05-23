@@ -2,16 +2,31 @@
 
 import type React from "react"
 
+import { useState, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { motion, useInView } from "framer-motion"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faXTwitter, faFacebookF, faYoutube, faWhatsapp } from "@fortawesome/free-brands-svg-icons"
-import { subscribeToNewsletter } from "@/app/actions/newsletter-actions"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import { CheckCircle2, AlertCircle } from "lucide-react"
+import {
+  Linkedin,
+  Twitter,
+  Facebook,
+  Youtube,
+  MessageCircleMore,
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react"
+import { subscribeToNewsletter } from "@/app/actions/newsletter-actions"
+import { AnimatePresence } from "framer-motion"
+import { FaWhatsapp } from 'react-icons/fa';
 
 export function Footer() {
   const [email, setEmail] = useState("")
@@ -21,6 +36,9 @@ export function Footer() {
     message: string
     visible: boolean
   } | null>(null)
+
+  const footerRef = useRef(null)
+  const isInView = useInView(footerRef, { once: true, amount: 0.2 })
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,257 +96,316 @@ export function Footer() {
     }
   }
 
+  const footerVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
+      },
+    },
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  }
+const XIcon = () => (
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-twitter-x" viewBox="0 0 16 16">
+  <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/>
+</svg>
+);
+
+  const socialLinks = [
+    { icon: <Linkedin className="w-5 h-5" />, href: "https://linkedin.com", label: "LinkedIn" },
+ { icon: <XIcon />, href: "https://twitter.com", label: "X" },
+    { icon: <Facebook className="w-5 h-5" />, href: "https://facebook.com", label: "Facebook" },
+    { icon: <Youtube className="w-5 h-5" />, href: "https://youtube.com", label: "YouTube" },
+    { icon: <FaWhatsapp className="w-5 h-5" />, href: "https://whatsapp.com", label: "WhatsApp" },
+  ]
+
+  const quickLinks = [
+    { href: "/", label: "Home" },
+    { href: "/company", label: "Company" },
+    { href: "/solutions", label: "Solutions" },
+    { href: "/contact", label: "Contact Us" },
+  ]
+
+  const serviceLinks = [
+    { href: "/solutions#it-consulting", label: "IT Consulting" },
+    { href: "/solutions#hr-services", label: "HR Consulting" },
+    { href: "/solutions#recruitment", label: "Recruitment & Manpower" },
+    { href: "/solutions#staffing", label: "Personality Development" },
+  ]
+
   return (
-    <footer className="bg-gradient-to-r from-black to-blue-950 z-0 text-white py-12">
-      <div className="container mx-auto px-4">
+    <motion.footer
+      ref={footerRef}
+      variants={footerVariants}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      className="relative bg-gradient-to-b from-black to-zinc-900 text-white pt-20 pb-8 overflow-hidden z-10"
+    >
+      {/* Background Elements */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-zinc-900/30" />
+        <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full filter blur-3xl" />
+        <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-purple-500/5 rounded-full filter blur-3xl" />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
         {/* Newsletter Subscription */}
-        <div className="mb-12 pb-10 border-b border-black">
-          <div className="max-w-4xl mx-auto">
+        <motion.div variants={itemVariants} className="relative mb-16 pb-16 border-b border-zinc-800">
+          <div className="max-w-5xl mx-auto bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-2xl p-8 shadow-xl backdrop-blur-sm">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div>
-                <h3 className="text-xl font-bold mb-2">Stay Updated</h3>
-                <p className="text-white text-sm">
+                <h3 className="text-2xl font-bold mb-3 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  Stay Updated
+                </h3>
+                <p className="text-gray-300 text-sm">
                   Subscribe to our newsletter for updates, industry insights, and exclusive offers.
                 </p>
               </div>
               <div>
                 <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1">
-                    <input
+                  <div className="flex-1 relative">
+                    <Input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
-                      className="w-full px-4 py-2 bg-white border border-zinc-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder:text-gray-400"
                       required
                     />
                   </div>
                   <Button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors rounded-md"
+                    className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium transition-all duration-300 rounded-md py-6"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Subscribing..." : "Subscribe"}
+                    {isSubmitting ? (
+                      <span className="flex items-center">
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Subscribing...
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        Subscribe <ArrowRight className="ml-2 h-4 w-4" />
+                      </span>
+                    )}
                   </Button>
                 </form>
 
                 {/* Subscription Status Message */}
-                {subscriptionStatus && subscriptionStatus.visible && (
-                  <div
-                    className={`mt-3 p-3 rounded-md flex items-center gap-2 ${
-                      subscriptionStatus.success
-                        ? "bg-green-100 text-green-800 border border-green-200"
-                        : "bg-red-100 text-red-800 border border-red-200"
-                    }`}
-                  >
-                    {subscriptionStatus.success ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
-                    ) : (
-                      <AlertCircle className="h-5 w-5 text-red-600" />
-                    )}
-                    <span className="text-sm font-medium">{subscriptionStatus.message}</span>
-                  </div>
-                )}
+                <AnimatePresence>
+                  {subscriptionStatus && subscriptionStatus.visible && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className={`mt-3 p-3 rounded-md flex items-center gap-2 ${
+                        subscriptionStatus.success
+                          ? "bg-green-900/30 text-green-300 border border-green-800"
+                          : "bg-red-900/30 text-red-300 border border-red-800"
+                      }`}
+                    >
+                      {subscriptionStatus.success ? (
+                        <CheckCircle2 className="h-5 w-5 text-green-400" />
+                      ) : (
+                        <AlertCircle className="h-5 w-5 text-red-400" />
+                      )}
+                      <span className="text-sm font-medium">{subscriptionStatus.message}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Logo and Company Info */}
-          <div className="col-span-1 md:col-span-1">
-            <Link href="/" className="inline-block mb-4">
-              <div style={{ width: "150px", height: "35px", position: "relative" }}>
+          <motion.div variants={itemVariants} className="col-span-1 md:col-span-1">
+            <Link href="/" className="inline-block mb-6">
+              <div className="relative w-[180px] h-[40px]">
                 <Image src="/images/logos/oddiant-preview.png" alt="Oddiant Techlabs" fill className="object-contain" />
               </div>
             </Link>
-            <p className="text-md font-bold">Follow Us:</p>
-            <div className="mt-4 flex space-x-4">
-              <a href="https://linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-6 h-6 text-blue-500 hover:text-white transition-colors"
+            <p className="text-gray-400 mb-6">
+              Empowering businesses through innovative IT consulting, expert staffing solutions, and tailored
+              personality development programs.
+            </p>
+            <p className="text-md font-bold text-white mb-4">Follow Us:</p>
+            <div className="flex space-x-3">
+              {socialLinks.map((link, index) => (
+                <motion.a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={link.label}
+                  whileHover={{ scale: 1.1, y: -3 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-gradient-to-r from-blue-600 to-green-500 transition-all duration-300"
                 >
-                  <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z" />
-                </svg>
-              </a>
-              <a href="https://twitter.com" target="_blank" rel="noreferrer" aria-label="Twitter">
-                <FontAwesomeIcon
-                  icon={faXTwitter}
-                  className="w-6 h-6 text-zinc-400 hover:text-white transition-colors"
-                />
-              </a>
-              <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook">
-                <FontAwesomeIcon
-                  icon={faFacebookF}
-                  className="w-6 h-6 text-blue-500 hover:text-white transition-colors"
-                />
-              </a>
-
-              <a href="https://youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube">
-                <FontAwesomeIcon icon={faYoutube} className="w-6 h-6 text-red-600 hover:text-white transition-colors" />
-              </a>
-
-              <a href="https://wa.me/your-number" target="_blank" rel="noreferrer" aria-label="WhatsApp">
-                <FontAwesomeIcon
-                  icon={faWhatsapp}
-                  className="w-6 h-6 text-green-400 hover:text-white transition-colors"
-                />
-              </a>
+                  {link.icon}
+                </motion.a>
+              ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Quick Links */}
-          <div className="col-span-1">
-            <h3 className="text-lg font-bold mb-4">Quick Links</h3>
-            <ul className="space-y-2 text-white">
-              <li>
-                <Link href="/" className="hover:border-white hover:border-b-2 transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/company" className="hover:border-white hover:border-b-2 transition-colors">
-                  Company
-                </Link>
-              </li>
-              <li>
-                <Link href="/solutions" className="hover:border-white hover:border-b-2 transition-colors">
-                  Solutions
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:border-white hover:border-b-2 transition-colors">
-                  Contact Us
-                </Link>
-              </li>
+          <motion.div variants={itemVariants} className="col-span-1">
+            <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Quick Links
+            </h3>
+            <ul className="space-y-4">
+              {quickLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-gray-300 hover:text-white flex items-center group transition-all duration-300"
+                  >
+                    <span className="w-0 h-0.5 bg-gradient-to-r from-green-400 to-blue-500 group-hover:w-4 transition-all duration-300 mr-0 group-hover:mr-2"></span>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
+          </motion.div>
 
           {/* Services */}
-          <div className="col-span-1">
-            <h3 className="text-lg font-bold mb-4">Services</h3>
-            <ul className="space-y-2 text-white">
-              <li>
-                <Link href="/solutions#it-consulting" className="hover:border-white hover:border-b-2 transition-colors">
-                  IT Consulting
-                </Link>
-              </li>
-              <li>
-                <Link href="/solutions#hr-services" className="hover:border-white hover:border-b-2 transition-colors">
-                  HR Consulting
-                </Link>
-              </li>
-              <li>
-                <Link href="/solutions#recruitment" className="hover:border-white hover:border-b-2 transition-colors">
-                  Recruitment & Manpower Consulting
-                </Link>
-              </li>
-              <li>
-                <Link href="/solutions#staffing" className="hover:border-white hover:border-b-2 transition-colors">
-                  Personality Development Program (PDP)
-                </Link>
-              </li>
+          <motion.div variants={itemVariants} className="col-span-1">
+            <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Services
+            </h3>
+            <ul className="space-y-4">
+              {serviceLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-gray-300 hover:text-white flex items-center group transition-all duration-300"
+                  >
+                    <span className="w-0 h-0.5 bg-gradient-to-r from-green-400 to-blue-500 group-hover:w-4 transition-all duration-300 mr-0 group-hover:mr-2"></span>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
+          </motion.div>
 
           {/* Contact Info */}
-          <div className="col-span-1">
-            <h3 className="text-lg font-bold mb-4">Contact Info</h3>
-            <ul className="space-y-2 text-white">
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2 mt-0.5 text-zinc-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                <a
-                  href="https://www.google.com/maps/search/Noida,+U.P.,+India"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  Noida, U.P., India
-                </a>
+          <motion.div variants={itemVariants} className="col-span-1">
+            <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Contact Info
+            </h3>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3">
+                <div className="mt-1 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-4 h-4 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">Office Locations</p>
+                  <a
+                    href="https://maps.app.goo.gl/BBFMKuiDnabN2rPE6"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                  >
+                    D.D Puram Bareilly, Uttar Pradesh
+                  </a>
+                  <br />
+                  <a
+                    href="https://maps.app.goo.gl/bMVpmZkageHxXuc76"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                  >
+                    Sector-63 Noida, Uttar Pradesh
+                  </a>
+                </div>
               </li>
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2 mt-0.5 text-zinc-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-                <a href="mailto:info@oddianttechlabs.com" className="hover:underline">
-                  info@oddiant.com
-                </a>
+              <li className="flex items-start gap-3">
+                <div className="mt-1 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-4 h-4 text-green-400" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">Email</p>
+                  <a href="mailto:hi@oddiant.com" className="text-gray-400 hover:text-white transition-colors text-sm">
+                    hi@oddiant.com
+                  </a>
+                </div>
               </li>
-              <li className="flex items-start">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2 mt-0.5 text-zinc-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                  />
-                </svg>
-                <a href="tel:+911234567890" className="hover:underline">
-                  +917300875549
-                </a>
+              <li className="flex items-start gap-3">
+                <div className="mt-1 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-4 h-4 text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">Phone</p>
+                  <a href="tel:+917300875549" className="text-gray-400 hover:text-white transition-colors text-sm">
+                    +91 7300875549
+                  </a>
+                  <br />
+                  <a href="tel:+918755498866" className="text-gray-400 hover:text-white transition-colors text-sm">
+                    +91 8755498866
+                  </a>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="mt-1 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <Clock className="w-4 h-4 text-yellow-400" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">Business Hours</p>
+                  <p className="text-gray-400 text-sm">Mon-Fri: 9:30 AM - 6:30 PM IST</p>
+                  <p className="text-gray-400 text-sm">Sat-Sun: Closed</p>
+                </div>
               </li>
             </ul>
-          </div>
+          </motion.div>
         </div>
 
-        <Separator className="my-8 bg-zinc-800" />
+        <Separator className="my-10 bg-zinc-800" />
 
         {/* Bottom Section */}
-        <div className="flex flex-col md:flex-row items-center justify-between text-white text-sm">
+        <motion.div
+          variants={itemVariants}
+          className="flex flex-col md:flex-row items-center justify-between text-gray-400 text-sm"
+        >
           <p>&copy; {new Date().getFullYear()} Oddiant Techlabs LLP. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link
-              href="/images/logos/PRIVACY-TERMS[1].pdf"
-              target="_blank"
-              className="text-white hover:border-white hover:border-b-2 transition-colors"
-            >
+            <Link href="/privacy-policy" className="hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms-of-service" className="text-white hover:border-white hover:border-b-2 transition-colors">
+            <Link href="/terms-of-service" className="hover:text-white transition-colors">
               Terms of Service
             </Link>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </footer>
+    </motion.footer>
   )
 }

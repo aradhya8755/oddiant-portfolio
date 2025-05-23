@@ -1,385 +1,818 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRef } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { motion, useInView } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ArrowRight, Monitor, Users, UserPlus, BookOpen, CheckCircle, Sparkles, Zap, Shield } from 'lucide-react'
 
 export default function SolutionsPage() {
+  const heroRef = useRef<HTMLDivElement>(null)
+  const isHeroInView = useInView(heroRef, { once: true, amount: 0.2 })
+
+  const itConsultingRef = useRef<HTMLDivElement>(null)
+  const isItConsultingInView = useInView(itConsultingRef, { once: true, amount: 0.2 })
+
+  const hrConsultingRef = useRef<HTMLDivElement>(null)
+  const isHrConsultingInView = useInView(hrConsultingRef, { once: true, amount: 0.2 })
+
+  const recruitmentRef = useRef<HTMLDivElement>(null)
+  const isRecruitmentInView = useInView(recruitmentRef, { once: true, amount: 0.2 })
+
+  const pdpRef = useRef<HTMLDivElement>(null)
+  const isPdpInView = useInView(pdpRef, { once: true, amount: 0.2 })
+
+  const ctaRef = useRef<HTMLDivElement>(null)
+  const isCtaInView = useInView(ctaRef, { once: true, amount: 0.2 })
+
+  const fadeInUpVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+      },
+    },
+  }
+
+  const staggerContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
+      },
+    },
+  }
+
+  const services = [
+    {
+      id: "it-consulting",
+      title: "IT Consulting",
+      icon: <Monitor className="w-6 h-6" />,
+      color: "blue",
+      description:
+        "Expert guidance to optimize technology, improve efficiency, and support business growth through innovative IT solutions.",
+      features: [
+        "Web Based Solutions",
+        "Web App Development",
+        "Mobile App Development",
+        "Custom Software Development",
+        "Cloud Solutions",
+        "IT Strategy & Planning",
+      ],
+      benefits: [
+        "Increased operational efficiency",
+        "Reduced IT costs",
+        "Enhanced security",
+        "Improved customer experience",
+        "Scalable technology infrastructure",
+      ],
+    },
+    {
+      id: "hr-services",
+      title: "HR Consulting",
+      icon: <Users className="w-6 h-6" />,
+      color: "purple",
+      description:
+        "Comprehensive HR solutions to manage people, improve workplace culture, and align HR strategies with business goals.",
+      features: [
+        "Background Verification",
+        "Onboarding and Payroll",
+        "HR Policy Development",
+        "Performance Management",
+        "Employee Engagement",
+        "Compliance Management",
+      ],
+      benefits: [
+        "Improved employee retention",
+        "Enhanced workplace culture",
+        "Reduced compliance risks",
+        "Streamlined HR processes",
+        "Better talent management",
+      ],
+    },
+    {
+      id: "recruitment",
+      title: "Recruitment & Manpower Consulting",
+      icon: <UserPlus className="w-6 h-6" />,
+      color: "green",
+      description:
+        "Connect businesses with the right talent to drive growth and success through strategic recruitment solutions.",
+      features: [
+        "Permanent Staffing",
+        "Contingent Staffing",
+        "Executive Search",
+        "Bulk Hiring",
+        "Campus Recruitment",
+        "Talent Assessment",
+      ],
+      benefits: [
+        "Access to quality talent pool",
+        "Reduced time-to-hire",
+        "Lower recruitment costs",
+        "Improved candidate quality",
+        "Enhanced employer branding",
+      ],
+    },
+    {
+      id: "staffing",
+      title: "Personality Development Program (PDP)",
+      icon: <BookOpen className="w-6 h-6" />,
+      color: "amber",
+      description:
+        "Comprehensive programs to enhance personal and professional skills, boosting confidence and career prospects.",
+      features: [
+        "Resume Writing",
+        "Soft Skill Training",
+        "Interview Preparation",
+        "Communication Skills",
+        "Leadership Development",
+        "Career Counseling",
+      ],
+      benefits: [
+        "Improved communication skills",
+        "Enhanced confidence",
+        "Better career opportunities",
+        "Stronger professional network",
+        "Increased adaptability",
+      ],
+    },
+  ]
+
   return (
     <div className="bg-black text-white">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden">
+      <section ref={heroRef} className="relative pt-32 pb-20 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-zinc-900/30" />
-          <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full filter blur-3xl" />
-          <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full filter blur-3xl" />
+
+          {/* Animated particles */}
+          <div className="absolute top-0 left-0 w-full h-full">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full bg-white opacity-20"
+                style={{
+                  width: Math.random() * 4 + 1,
+                  height: Math.random() * 4 + 1,
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                }}
+                animate={{
+                  y: [0, Math.random() * -100 - 50],
+                  opacity: [0, 0.5, 0],
+                }}
+                transition={{
+                  duration: Math.random() * 10 + 10,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "linear",
+                }}
+              />
+            ))}
+          </div>
+
+          <motion.div
+            className="absolute top-1/3 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full filter blur-3xl"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.15, 0.1],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Number.POSITIVE_INFINITY,
+              repeatType: "reverse",
+            }}
+          />
+          <motion.div
+            className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full filter blur-3xl"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.15, 0.1],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Number.POSITIVE_INFINITY,
+              repeatType: "reverse",
+              delay: 1,
+            }}
+          />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in">
+          <motion.div
+            initial="hidden"
+            animate={isHeroInView ? "visible" : "hidden"}
+            variants={fadeInUpVariants}
+            className="max-w-3xl mx-auto text-center"
+          >
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
               Our Solutions
             </h1>
-            <p className="text-xl text-gray-300 animate-fade-in">
+            <p className="text-xl text-gray-300">
               Comprehensive services tailored to meet your business needs
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Services Overview */}
-      <section className="py-24 bg-gradient-to-r from-blue-500/20 to-purple-500/20 relative">
-        {/* Flow Lines Decoration */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {/* Blue flow line */}
-          <div className="absolute top-[35%] left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-700 to-transparent transform -rotate-1"></div>
-
-          {/* Yellow flow line */}
-          <div className="absolute top-[65%] left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-800 to-transparent transform rotate-1"></div>
-
-          {/* Vertical connecting lines */}
-          <div className="absolute top-[36.2%] left-1/4 w-1 h-[28.4%] bg-gradient-to-b from-green-700 to-yellow-800"></div>
-          <div className="absolute top-[35%] left-2/4 w-1 h-[30.5%] bg-gradient-to-b from-green-700 to-yellow-800"></div>
-          <div className="absolute top-[33.9%] left-3/4 w-1 h-[32.7%] bg-gradient-to-b from-green-700 to-yellow-800"></div>
-        </div>
-
+      {/* Services Overview Section */}
+      <section className="py-16 bg-gradient-to-b from-zinc-900 to-black">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {services.map((service) => (
-              <div key={service.id} className="group">
-                <Card className="bg-white border-zinc-700 transform transition-all duration-300 ease-in-out group-hover:scale-105 hover:shadow-xl relative z-10 h-full">
-                  <CardHeader className="pb-4">
-                    <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 mb-4 group-hover:bg-blue-500/30 transition-colors">
-                      {service.icon}
-                    </div>
-                    <CardTitle className="text-xl text-black">{service.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-black mb-6">
-                      {service.shortDescription}
-                    </p>
-                    <Button
-                      asChild
-                      variant="link"
-                      className="
-    inline-flex items-center justify-center
-    p-2 px-4
-    text-md font-normal
-    text-white bg-black
-    border border-black rounded-md
-    hover:bg-green-600 hover:text-white hover:no-underline
-    no-underline
-    transition-colors
-    w-[120px] h-[40px]
-    absolute bottom-2 left-1/2 transform -translate-x-1/2
-  "
-                    >
-                      <a href="#service-id">Learn More</a>
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
+            {services.map((service, index) => {
+              const colorClasses = {
+                blue: "from-blue-500 to-blue-700 shadow-blue-500/20",
+                purple: "from-purple-500 to-purple-700 shadow-purple-500/20",
+                green: "from-green-500 to-green-700 shadow-green-500/20",
+                amber: "from-amber-500 to-amber-700 shadow-amber-500/20",
+              }
+
+              return (
+                <motion.div
+                  key={service.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                  className="h-full"
+                >
+                  <Link href={`#${service.id}`}>
+                    <Card className="bg-white/5 backdrop-blur-sm border-zinc-800 h-full overflow-hidden group hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
+                      <CardHeader className="pb-4">
+                        <div
+                          className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-gradient-to-br ${
+                            colorClasses[service.color as keyof typeof colorClasses]
+                          } shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                        >
+                          {service.icon}
+                        </div>
+                        <CardTitle className="text-xl text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-300 transition-all duration-300">
+                          {service.title}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
+                          {service.description}
+                        </p>
+                        <div className="mt-6 flex items-center text-blue-400 group-hover:text-blue-300 transition-colors duration-300">
+                          <span className="text-sm font-medium">Learn more</span>
+                          <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </section>
 
-      {/* Detailed Service Sections */}
-      {services.map((service, index) => (
-        <section
-          key={service.id}
-          id={service.id}
-          className={`py-20 ${
-            index % 1 === 0
-              ? "py-24 bg-gradient-to-r from-blue-500/20 to-purple-500/20"
-              : "bg-white"
-          }`}
-        >
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div
-                className={`${
-                  index % 2 === 0 ? "order-1 lg:order-1" : "order-1 lg:order-2"
-                }`}
-              >
-                <h2 className="text-3xl font-bold mb-6 animate-fade-in">
-                  {service.title}
-                </h2>
-                <div className="prose prose-invert max-w-none animate-fade-in">
-                  <p className="text-gray-300 mb-4">{service.description}</p>
-
-                  <h3 className="text-xl font-semibold mt-8 mb-4">
-                    What We Offer
-                  </h3>
-
-                  <ul className="space-y-3">
-                    {service.offerings.map((offering, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <div className="mt-1 text-blue-400">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        </div>
-                        <span className="text-gray-300">{offering}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="mt-8">
-                  <Button
-                    asChild
-                    className="rounded-full px-8 py-6 text-lg bg-white text-black hover:text-white hover:bg-green-500"
-                  >
-                    <Link href="/contact">Get Started</Link>
-                  </Button>
+      {/* IT Consulting Section */}
+      <section id="it-consulting" ref={itConsultingRef} className="py-24 bg-gradient-to-r from-blue-900/20 to-blue-900/5">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial="hidden"
+            animate={isItConsultingInView ? "visible" : "hidden"}
+            variants={staggerContainerVariants}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+          >
+            <motion.div variants={fadeInUpVariants}>
+              <div className="inline-block mb-3">
+                <div className="flex items-center justify-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full">
+                  <Monitor className="h-4 w-4 text-blue-400" />
+                  <span className="text-sm font-medium text-blue-400">IT Consulting</span>
                 </div>
               </div>
+              <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Innovative IT Solutions for Your Business
+              </h2>
+              <p className="text-gray-300 mb-8">
+                Our IT consulting services provide expert guidance to optimize technology, improve efficiency, and
+                support business growth through innovative IT solutions. We help businesses leverage technology to gain a
+                competitive edge in today's digital landscape.
+              </p>
 
-              <div
-                className={`relative h-[350px] md:h-[400px] rounded-xl overflow-hidden animate-fade-in hover:scale-102 transition-all duration-300 ease-in-out ${
-                  index % 2 === 0 ? "order-2 lg:order-2" : "order-2 lg:order-1"
-                }`}
+              <div className="space-y-4 mb-8">
+                {services[0].features.map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={isItConsultingInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                    transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="mt-1 text-blue-400">
+                      <CheckCircle className="h-5 w-5" />
+                    </div>
+                    <p className="text-gray-300">{feature}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              <Button
+                asChild
+                className="rounded-full px-8 py-6 text-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white transition-all duration-300"
               >
-                <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-purple-500/10 mix-blend-overlay z-10" />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-purple-900/20 z-0 flex items-center justify-center px-6">
-                  <div className="grid grid-cols-2 gap-4 w-full">
-                    {service.stats.map((stat, idx) => {
-                      // Define color classes based on index
-                      const colorClasses = [
-                        "text-blue-400",
-                        "text-green-400",
-                        "text-purple-400",
-                        "text-yellow-400",
-                      ];
+                <Link href="/contact" className="flex items-center">
+                  Get Started
+                  <motion.span initial={{ x: 0 }} whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </motion.span>
+                </Link>
+              </Button>
+            </motion.div>
 
-                      // Determine background color based on position
-                      const bgColor =
-                        idx % 2 === 0
-                          ? Math.floor(idx / 2) % 2 === 0
-                            ? "bg-black"
-                            : "bg-white"
-                          : Math.floor(idx / 2) % 2 === 0
-                          ? "bg-white"
-                          : "bg-black";
+            <motion.div variants={fadeInUpVariants} className="relative">
+              <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-blue-700/20 mix-blend-overlay z-10" />
 
-                      // Determine text color based on background
-                      const textColor =
-                        bgColor === "bg-black" ? "text-white" : "text-black";
-
-                      return (
-                        <div
+                {/* Content */}
+                <div className="absolute inset-0 flex items-center justify-center z-20">
+                  <div className="max-w-md p-6">
+                    <h3 className="text-2xl font-bold mb-4 text-white">Benefits</h3>
+                    <div className="space-y-4">
+                      {services[0].benefits.map((benefit, idx) => (
+                        <motion.div
                           key={idx}
-                          className={`${bgColor} rounded-lg p-6 text-center flex flex-col items-center justify-center transition-transform hover:scale-105 shadow-lg`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.2 + idx * 0.1, duration: 0.5 }}
+                          className="bg-white/10 backdrop-blur-md rounded-xl p-4 flex items-center gap-3 hover:bg-white/20 transition-all duration-300"
                         >
-                          <p
-                            className={`text-4xl font-bold ${colorClasses[idx]} mb-2`}
-                          >
-                            {stat.value}
-                          </p>
-                          <p className={`text-sm ${textColor}`}>{stat.label}</p>
-                        </div>
-                      );
-                    })}
+                          <div className="w-8 h-8 rounded-full bg-blue-500/30 flex items-center justify-center flex-shrink-0">
+                            <Sparkles className="w-4 h-4 text-blue-300" />
+                          </div>
+                          <span className="text-white">{benefit}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Background pattern */}
+                <div className="absolute inset-0 bg-zinc-900 z-0">
+                  <div className="absolute inset-0 opacity-30">
+                    <div
+                      className="h-full w-full"
+                      style={{
+                        backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)",
+                        backgroundSize: "30px 30px",
+                      }}
+                    ></div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-      ))}
+
+              {/* Floating elements */}
+              <motion.div
+                className="absolute -top-8 -right-8 w-24 h-24 bg-blue-500/30 rounded-full filter blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                }}
+              />
+              <motion.div
+                className="absolute -bottom-8 -left-8 w-24 h-24 bg-blue-500/30 rounded-full filter blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                  delay: 1,
+                }}
+              />
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* HR Consulting Section */}
+      <section id="hr-services" ref={hrConsultingRef} className="py-24 bg-gradient-to-r from-purple-900/20 to-purple-900/5">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial="hidden"
+            animate={isHrConsultingInView ? "visible" : "hidden"}
+            variants={staggerContainerVariants}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+          >
+            <motion.div variants={fadeInUpVariants} className="order-2 lg:order-1 relative">
+              <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-purple-700/20 mix-blend-overlay z-10" />
+
+                {/* Content */}
+                <div className="absolute inset-0 flex items-center justify-center z-20">
+                  <div className="max-w-md p-6">
+                    <h3 className="text-2xl font-bold mb-4 text-white">Benefits</h3>
+                    <div className="space-y-4">
+                      {services[1].benefits.map((benefit, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.2 + idx * 0.1, duration: 0.5 }}
+                          className="bg-white/10 backdrop-blur-md rounded-xl p-4 flex items-center gap-3 hover:bg-white/20 transition-all duration-300"
+                        >
+                          <div className="w-8 h-8 rounded-full bg-purple-500/30 flex items-center justify-center flex-shrink-0">
+                            <Sparkles className="w-4 h-4 text-purple-300" />
+                          </div>
+                          <span className="text-white">{benefit}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Background pattern */}
+                <div className="absolute inset-0 bg-zinc-900 z-0">
+                  <div className="absolute inset-0 opacity-30">
+                    <div
+                      className="h-full w-full"
+                      style={{
+                        backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)",
+                        backgroundSize: "30px 30px",
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating elements */}
+              <motion.div
+                className="absolute -top-8 -right-8 w-24 h-24 bg-purple-500/30 rounded-full filter blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                }}
+              />
+              <motion.div
+                className="absolute -bottom-8 -left-8 w-24 h-24 bg-purple-500/30 rounded-full filter blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                  delay: 1,
+                }}
+              />
+            </motion.div>
+
+            <motion.div variants={fadeInUpVariants} className="order-1 lg:order-2">
+              <div className="inline-block mb-3">
+                <div className="flex items-center justify-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full">
+                  <Users className="h-4 w-4 text-purple-400" />
+                  <span className="text-sm font-medium text-purple-400">HR Consulting</span>
+                </div>
+              </div>
+              <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Strategic HR Solutions for Growth
+              </h2>
+              <p className="text-gray-300 mb-8">
+                Our HR consulting services guide businesses in managing people, improving workplace culture, and aligning
+                HR strategies with business goals. We help organizations build strong, engaged teams that drive success.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                {services[1].features.map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={isHrConsultingInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+                    transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="mt-1 text-purple-400">
+                      <CheckCircle className="h-5 w-5" />
+                    </div>
+                    <p className="text-gray-300">{feature}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              <Button
+                asChild
+                className="rounded-full px-8 py-6 text-lg bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white transition-all duration-300"
+              >
+                <Link href="/contact" className="flex items-center">
+                  Get Started
+                  <motion.span initial={{ x: 0 }} whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </motion.span>
+                </Link>
+              </Button>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Recruitment & Manpower Section */}
+      <section id="recruitment" ref={recruitmentRef} className="py-24 bg-gradient-to-r from-green-900/20 to-green-900/5">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial="hidden"
+            animate={isRecruitmentInView ? "visible" : "hidden"}
+            variants={staggerContainerVariants}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+          >
+            <motion.div variants={fadeInUpVariants}>
+              <div className="inline-block mb-3">
+                <div className="flex items-center justify-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full">
+                  <UserPlus className="h-4 w-4 text-green-400" />
+                  <span className="text-sm font-medium text-green-400">Recruitment & Manpower</span>
+                </div>
+              </div>
+              <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Connect with Top Talent
+              </h2>
+              <p className="text-gray-300 mb-8">
+                Our recruitment and manpower consulting services connect businesses with the right talent to drive growth
+                and success. We provide strategic recruitment solutions tailored to your specific needs and industry
+                requirements.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                {services[2].features.map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={isRecruitmentInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                    transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="mt-1 text-green-400">
+                      <CheckCircle className="h-5 w-5" />
+                    </div>
+                    <p className="text-gray-300">{feature}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              <Button
+                asChild
+                className="rounded-full px-8 py-6 text-lg bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white transition-all duration-300"
+              >
+                <Link href="/contact" className="flex items-center">
+                  Get Started
+                  <motion.span initial={{ x: 0 }} whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </motion.span>
+                </Link>
+              </Button>
+            </motion.div>
+
+            <motion.div variants={fadeInUpVariants} className="relative">
+              <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-green-700/20 mix-blend-overlay z-10" />
+
+                {/* Content */}
+                <div className="absolute inset-0 flex items-center justify-center z-20">
+                  <div className="max-w-md p-6">
+                    <h3 className="text-2xl font-bold mb-4 text-white">Benefits</h3>
+                    <div className="space-y-4">
+                      {services[2].benefits.map((benefit, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.2 + idx * 0.1, duration: 0.5 }}
+                          className="bg-white/10 backdrop-blur-md rounded-xl p-4 flex items-center gap-3 hover:bg-white/20 transition-all duration-300"
+                        >
+                          <div className="w-8 h-8 rounded-full bg-green-500/30 flex items-center justify-center flex-shrink-0">
+                            <Sparkles className="w-4 h-4 text-green-300" />
+                          </div>
+                          <span className="text-white">{benefit}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Background pattern */}
+                <div className="absolute inset-0 bg-zinc-900 z-0">
+                  <div className="absolute inset-0 opacity-30">
+                    <div
+                      className="h-full w-full"
+                      style={{
+                        backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)",
+                        backgroundSize: "30px 30px",
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating elements */}
+              <motion.div
+                className="absolute -top-8 -right-8 w-24 h-24 bg-green-500/30 rounded-full filter blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                }}
+              />
+              <motion.div
+                className="absolute -bottom-8 -left-8 w-24 h-24 bg-green-500/30 rounded-full filter blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                  delay: 1,
+                }}
+              />
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Personality Development Section */}
+      <section id="staffing" ref={pdpRef} className="py-24 bg-gradient-to-r from-amber-900/20 to-amber-900/5">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial="hidden"
+            animate={isPdpInView ? "visible" : "hidden"}
+            variants={staggerContainerVariants}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+          >
+            <motion.div variants={fadeInUpVariants} className="order-2 lg:order-1 relative">
+              <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-amber-700/20 mix-blend-overlay z-10" />
+
+                {/* Content */}
+                <div className="absolute inset-0 flex items-center justify-center z-20">
+                  <div className="max-w-md p-6">
+                    <h3 className="text-2xl font-bold mb-4 text-white">Benefits</h3>
+                    <div className="space-y-4">
+                      {services[3].benefits.map((benefit, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.2 + idx * 0.1, duration: 0.5 }}
+                          className="bg-white/10 backdrop-blur-md rounded-xl p-4 flex items-center gap-3 hover:bg-white/20 transition-all duration-300"
+                        >
+                          <div className="w-8 h-8 rounded-full bg-amber-500/30 flex items-center justify-center flex-shrink-0">
+                            <Sparkles className="w-4 h-4 text-amber-300" />
+                          </div>
+                          <span className="text-white">{benefit}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Background pattern */}
+                <div className="absolute inset-0 bg-zinc-900 z-0">
+                  <div className="absolute inset-0 opacity-30">
+                    <div
+                      className="h-full w-full"
+                      style={{
+                        backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)",
+                        backgroundSize: "30px 30px",
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating elements */}
+              <motion.div
+                className="absolute -top-8 -right-8 w-24 h-24 bg-amber-500/30 rounded-full filter blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                }}
+              />
+              <motion.div
+                className="absolute -bottom-8 -left-8 w-24 h-24 bg-amber-500/30 rounded-full filter blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.5, 0.3],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                  delay: 1,
+                }}
+              />
+            </motion.div>
+
+            <motion.div variants={fadeInUpVariants} className="order-1 lg:order-2">
+              <div className="inline-block mb-3">
+                <div className="flex items-center justify-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full">
+                  <BookOpen className="h-4 w-4 text-amber-400" />
+                  <span className="text-sm font-medium text-amber-400">Personality Development</span>
+                </div>
+              </div>
+              <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                Unlock Your Full Potential
+              </h2>
+              <p className="text-gray-300 mb-8">
+                Our Personality Development Program (PDP) offers comprehensive training to enhance personal and
+                professional skills, boosting confidence and career prospects. We help individuals develop the skills
+                needed to excel in today's competitive job market.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                {services[3].features.map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={isPdpInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+                    transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="mt-1 text-amber-400">
+                      <CheckCircle className="h-5 w-5" />
+                    </div>
+                    <p className="text-gray-300">{feature}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              <Button
+                asChild
+                className="rounded-full px-8 py-6 text-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white transition-all duration-300"
+              >
+                <Link href="/contact" className="flex items-center">
+                  Get Started
+                  <motion.span initial={{ x: 0 }} whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </motion.span>
+                </Link>
+              </Button>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-white">
+      <section ref={ctaRef} className="py-24 bg-gradient-to-r from-blue-900/20 to-purple-900/20">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6 animate-fade-in text-black">
-              Ready to Transform Your Business?
+          <motion.div
+            initial="hidden"
+            animate={isCtaInView ? "visible" : "hidden"}
+            variants={fadeInUpVariants}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Ready to transform your business?
             </h2>
-            <p className="text-black mb-8 animate-fade-in">
-              Contact us today to discuss how Oddiant Techlabs can help you
-              achieve your business goals with our comprehensive solutions.
+            <p className="text-xl text-gray-300 mb-10">
+              Contact us today to discuss how our solutions can help you achieve your business goals.
             </p>
             <Button
               asChild
-              className="rounded-full px-8 py-6 text-lg bg-black text-white hover:text-white hover:bg-green-500"
+              className="rounded-full px-8 py-7 text-lg bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white transition-all duration-300"
             >
-              <Link href="/contact">Contact Us</Link>
+              <Link href="/contact" className="flex items-center">
+                Get Started
+                <motion.span initial={{ x: 0 }} whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </motion.span>
+              </Link>
             </Button>
-          </div>
+          </motion.div>
         </div>
       </section>
     </div>
-  );
+  )
 }
-
-const services = [
-  {
-    id: "it-consulting",
-    title: "IT Consulting",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-6 h-6"
-      >
-        <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16" />
-        <path d="M9 20h6" />
-        <path d="M12 16v4" />
-      </svg>
-    ),
-    shortDescription:
-      "IT Consulting provides expert guidance to optimize technology, improve efficiency, and support business growth through tailored IT solutions.",
-    description:
-      "Our IT consulting services empower businesses to harness technology for smarter operations and sustainable growth. We collaborate closely to align IT solutions with your business objectives and drive digital success.",
-    offerings: [
-      "Custom Website Design & Development",
-      "Responsive and Mobile-First Web Solutions",
-      "E-commerce Website Development",
-      "Web Application Development",
-      "Website Maintenance & Technical Support",
-      "CMS Development and Management",
-    ],
-    stats: [
-      { value: "45+", label: "IT Projects Completed" },
-      { value: "98%", label: "Client Satisfaction" },
-      { value: "30+", label: "Technology Partners" },
-      { value: "24/7", label: "Support Available" },
-    ],
-  },
-  {
-    id: "hr-services",
-    title: "HR Consulting",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-6 h-6"
-      >
-        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-        <path d="M9 14h.01" />
-        <path d="M9 17h.01" />
-        <path d="M12 16h4" />
-        <path d="M12 13h4" />
-      </svg>
-    ),
-    shortDescription:
-      "HR Consulting guides businesses in managing people, improving workplace culture, and aligning HR strategies with growth and compliance needs.",
-    description:
-      "We help businesses strengthen their people strategies by shaping effective HR frameworks and improving organizational culture. Our solutions ensure smooth HR operations, talent growth, and regulatory compliance.",
-    offerings: [
-      "Talent Acquisition Strategy & Support",
-      "Employee Onboarding & Engagement Programs",
-      "Workforce Planning & Organizational Structuring",
-      "HR Compliance and Policy Advisory",
-      "Training & Development Frameworks",
-      "Compensation Planning & Employee Retention",
-    ],
-    stats: [
-      { value: "20+", label: "HR Projects" },
-      { value: "95%", label: "Retention Rate" },
-      { value: "100%", label: "Compliance Success" },
-      { value: "15+", label: "Industries Served" },
-    ],
-  },
-  {
-    id: "recruitment",
-    title: "Recruitment & Manpower Consulting",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-6 h-6"
-      >
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
-    shortDescription:
-      "Recruitment & Manpower Consulting links businesses with the right talent to meet staffing needs, ensuring candidates match organizational goals.",
-    description:
-      "We assist businesses in building strong teams by sourcing skilled professionals who align with your company's goals and culture. Our recruitment solutions ensure faster hiring and long-term workforce stability.",
-    offerings: [
-      "Strategic Talent Sourcing & Acquisition",
-      "Industry-Specific Recruitment Solutions",
-      "Permanent & Project-Based Staffing",
-      "Workforce Planning & Resource Allocation",
-      "Employer Branding & Talent Engagement",
-      "Interview Coordination & Candidate Evaluation",
-    ],
-    stats: [
-      { value: "346+", label: "Successfull Offers & Counting" },
-      { value: "85%", label: "Cultural fit" },
-      { value: "12", label: "Average days to fill" },
-      { value: "15+", label: "Active Clients" },
-    ],
-  },
-  {
-    id: "staffing",
-    title: "Personality Development Program (PDP)",
-    icon: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-6 h-6"
-      >
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
-    shortDescription:
-      "Personality Development Program boosts confidence, communication, and interpersonal skills for building strong personal and professional impact.",
-    description:
-      "Our PDP sessions are designed to boost self-confidence, enhance communication skills, and foster leadership qualities. We focus on shaping well-rounded individuals ready to excel in both personal and professional environments.",
-    offerings: [
-      "Communication & Public Speaking Skills",
-      "Confidence Building & Positive Thinking",
-      "Leadership & Team Collaboration Techniques",
-      "Interview Preparation & Grooming Skills",
-      "Emotional Intelligence & Stress Management",
-      "Time Management & Goal Setting Workshops",
-    ],
-    stats: [
-      { value: "1200+", label: "hours session completed" },
-      { value: "150+", label: "Careers build" },
-      { value: "15+", label: "Industries Served" },
-      { value: "5-7 Days", label: "Average session" },
-    ],
-  },
-];
