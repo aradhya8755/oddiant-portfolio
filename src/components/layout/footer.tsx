@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { motion, useInView } from "framer-motion"
-import { Separator } from "@/components/ui/separator"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { toast } from "sonner"
+import { useState, useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion, useInView } from "framer-motion";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import {
   Linkedin,
   Twitter,
@@ -23,31 +23,31 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertCircle,
-} from "lucide-react"
-import { subscribeToNewsletter } from "@/app/actions/newsletter-actions"
-import { AnimatePresence } from "framer-motion"
-import { FaWhatsapp } from 'react-icons/fa';
+} from "lucide-react";
+import { subscribeToNewsletter } from "@/app/actions/newsletter-actions";
+import { AnimatePresence } from "framer-motion";
+import { FaWhatsapp } from "react-icons/fa";
 
 export function Footer() {
-  const [email, setEmail] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<{
-    success: boolean
-    message: string
-    visible: boolean
-  } | null>(null)
+    success: boolean;
+    message: string;
+    visible: boolean;
+  } | null>(null);
 
-  const footerRef = useRef(null)
-  const isInView = useInView(footerRef, { once: true, amount: 0.2 })
+  const footerRef = useRef(null);
+  const isInView = useInView(footerRef, { once: true, amount: 0.2 });
 
   const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (email) {
       try {
-        setIsSubmitting(true)
-        setSubscriptionStatus(null)
+        setIsSubmitting(true);
+        setSubscriptionStatus(null);
 
-        const result = await subscribeToNewsletter(email)
+        const result = await subscribeToNewsletter(email);
 
         if (result.success) {
           // Show success message
@@ -55,46 +55,54 @@ export function Footer() {
             success: true,
             message: "Thank you for subscribing to our newsletter!",
             visible: true,
-          })
-          toast.success("Thank you for subscribing to our newsletter!")
-          setEmail("")
+          });
+          toast.success("Thank you for subscribing to our newsletter!");
+          setEmail("");
 
           // Hide the message after 5 seconds
           setTimeout(() => {
-            setSubscriptionStatus((prev) => (prev ? { ...prev, visible: false } : null))
-          }, 5000)
+            setSubscriptionStatus((prev) =>
+              prev ? { ...prev, visible: false } : null
+            );
+          }, 5000);
         } else {
           // Show error message
           setSubscriptionStatus({
             success: false,
             message: result.message || "Failed to subscribe. Please try again.",
             visible: true,
-          })
-          toast.error(result.message || "Failed to subscribe. Please try again.")
+          });
+          toast.error(
+            result.message || "Failed to subscribe. Please try again."
+          );
 
           // Hide the message after 5 seconds
           setTimeout(() => {
-            setSubscriptionStatus((prev) => (prev ? { ...prev, visible: false } : null))
-          }, 5000)
+            setSubscriptionStatus((prev) =>
+              prev ? { ...prev, visible: false } : null
+            );
+          }, 5000);
         }
       } catch (error) {
-        console.error("Subscription error:", error)
+        console.error("Subscription error:", error);
         setSubscriptionStatus({
           success: false,
           message: "An error occurred. Please try again later.",
           visible: true,
-        })
-        toast.error("An error occurred. Please try again later.")
+        });
+        toast.error("An error occurred. Please try again later.");
 
         // Hide the message after 5 seconds
         setTimeout(() => {
-          setSubscriptionStatus((prev) => (prev ? { ...prev, visible: false } : null))
-        }, 5000)
+          setSubscriptionStatus((prev) =>
+            prev ? { ...prev, visible: false } : null
+          );
+        }, 5000);
       } finally {
-        setIsSubmitting(false)
+        setIsSubmitting(false);
       }
     }
-  }
+  };
 
   const footerVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -107,39 +115,62 @@ export function Footer() {
         delayChildren: 0.1,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
-  }
-const XIcon = () => (
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-twitter-x" viewBox="0 0 16 16">
-  <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/>
-</svg>
-);
+  };
+  const XIcon = () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      fill="currentColor"
+      className="bi bi-twitter-x"
+      viewBox="0 0 16 16"
+    >
+      <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" />
+    </svg>
+  );
 
   const socialLinks = [
-    { icon: <Linkedin className="w-5 h-5" />, href: "https://linkedin.com", label: "LinkedIn" },
- { icon: <XIcon />, href: "https://twitter.com", label: "X" },
-    { icon: <Facebook className="w-5 h-5" />, href: "https://facebook.com", label: "Facebook" },
-    { icon: <Youtube className="w-5 h-5" />, href: "https://youtube.com", label: "YouTube" },
-    { icon: <FaWhatsapp className="w-5 h-5" />, href: "https://whatsapp.com", label: "WhatsApp" },
-  ]
+    {
+      icon: <Linkedin className="w-5 h-5" />,
+      href: "https://linkedin.com",
+      label: "LinkedIn",
+    },
+    { icon: <XIcon />, href: "https://twitter.com", label: "X" },
+    {
+      icon: <Facebook className="w-5 h-5" />,
+      href: "https://facebook.com",
+      label: "Facebook",
+    },
+    {
+      icon: <Youtube className="w-5 h-5" />,
+      href: "https://youtube.com",
+      label: "YouTube",
+    },
+    {
+      icon: <FaWhatsapp className="w-5 h-5" />,
+      href: "https://whatsapp.com",
+      label: "WhatsApp",
+    },
+  ];
 
   const quickLinks = [
     { href: "/", label: "Home" },
     { href: "/company", label: "Company" },
     { href: "/solutions", label: "Solutions" },
     { href: "/contact", label: "Contact Us" },
-  ]
+  ];
 
   const serviceLinks = [
     { href: "/solutions#it-consulting", label: "IT Consulting" },
     { href: "/solutions#hr-services", label: "HR Consulting" },
     { href: "/solutions#recruitment", label: "Recruitment & Manpower" },
     { href: "/solutions#staffing", label: "Personality Development" },
-  ]
+  ];
 
   return (
     <motion.footer
@@ -158,7 +189,10 @@ const XIcon = () => (
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Newsletter Subscription */}
-        <motion.div variants={itemVariants} className="relative mb-16 pb-16 border-b border-zinc-800">
+        <motion.div
+          variants={itemVariants}
+          className="relative mb-16 pb-16 border-b border-zinc-800"
+        >
           <div className="max-w-5xl mx-auto bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-2xl p-8 shadow-xl backdrop-blur-sm">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div>
@@ -166,11 +200,15 @@ const XIcon = () => (
                   Stay Updated
                 </h3>
                 <p className="text-gray-300 text-sm">
-                  Subscribe to our newsletter for updates, industry insights, and exclusive offers.
+                  Subscribe to our newsletter for updates, industry insights,
+                  and exclusive offers.
                 </p>
               </div>
               <div>
-                <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3">
+                <form
+                  onSubmit={handleSubscribe}
+                  className="flex flex-col sm:flex-row gap-3"
+                >
                   <div className="flex-1 relative">
                     <Input
                       type="email"
@@ -237,7 +275,9 @@ const XIcon = () => (
                       ) : (
                         <AlertCircle className="h-5 w-5 text-red-400" />
                       )}
-                      <span className="text-sm font-medium">{subscriptionStatus.message}</span>
+                      <span className="text-sm font-medium">
+                        {subscriptionStatus.message}
+                      </span>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -248,58 +288,65 @@ const XIcon = () => (
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Logo and Company Info */}
-          <motion.div variants={itemVariants} className="col-span-1 md:col-span-1">
+          <motion.div
+            variants={itemVariants}
+            className="col-span-1 md:col-span-1"
+          >
             <Link href="/" className="inline-block mb-6">
               <div className="relative w-[180px] h-[40px]">
-                <Image src="/images/logos/oddiant-preview.png" alt="Oddiant Techlabs" fill className="object-contain" />
+                <Image
+                  src="/images/logos/oddiant-preview.png"
+                  alt="Oddiant Techlabs"
+                  fill
+                  className="object-contain"
+                />
               </div>
             </Link>
             <p className="text-gray-400 mb-6">
-              Empowering businesses through innovative IT consulting, expert staffing solutions, and tailored
-              personality development programs.
+              Empowering businesses through innovative IT consulting, expert
+              staffing solutions, and tailored personality development programs.
             </p>
             <p className="text-md font-bold text-white mb-4">Follow Us:</p>
-           <div className="flex space-x-3">
-  {socialLinks.map((link) => {
-    let hoverColor = "";
+            <div className="flex space-x-3">
+              {socialLinks.map((link) => {
+                let hoverColor = "";
 
-    switch (link.label) {
-      case "WhatsApp":
-        hoverColor = "hover:bg-green-500";
-        break;
-      case "Facebook":
-        hoverColor = "hover:bg-blue-600";
-        break;
-      case "LinkedIn":
-        hoverColor = "hover:bg-blue-500";
-        break;
-      case "X":
-        hoverColor = "hover:bg-gray-500";
-        break;
-      case "YouTube":
-        hoverColor = "hover:bg-red-600";
-        break;
-      default:
-        hoverColor = "hover:bg-white/20";
-    }
+                switch (link.label) {
+                  case "WhatsApp":
+                    hoverColor = "hover:bg-green-500";
+                    break;
+                  case "Facebook":
+                    hoverColor = "hover:bg-blue-600";
+                    break;
+                  case "LinkedIn":
+                    hoverColor = "hover:bg-blue-500";
+                    break;
+                  case "X":
+                    hoverColor = "hover:bg-gray-500";
+                    break;
+                  case "YouTube":
+                    hoverColor = "hover:bg-red-600";
+                    break;
+                  default:
+                    hoverColor = "hover:bg-white/20";
+                }
 
-    return (
-      <motion.a
-        key={link.label}
-        href={link.href}
-        target="_blank"
-        rel="noreferrer"
-        aria-label={link.label}
-        whileHover={{ scale: 1.1, y: -3 }}
-        transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        className={`w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 ${hoverColor}`}
-      >
-        {link.icon}
-      </motion.a>
-    );
-  })}
-</div>
-
+                return (
+                  <motion.a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={link.label}
+                    whileHover={{ scale: 1.1, y: -3 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    className={`w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 ${hoverColor}`}
+                  >
+                    {link.icon}
+                  </motion.a>
+                );
+              })}
+            </div>
           </motion.div>
 
           {/* Quick Links */}
@@ -379,7 +426,10 @@ const XIcon = () => (
                 </div>
                 <div>
                   <p className="text-white font-medium">Email</p>
-                  <a href="mailto:hi@oddiant.com" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  <a
+                    href="mailto:hi@oddiant.com"
+                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                  >
                     hi@oddiant.com
                   </a>
                 </div>
@@ -390,11 +440,17 @@ const XIcon = () => (
                 </div>
                 <div>
                   <p className="text-white font-medium">Phone</p>
-                  <a href="tel:+917300875549" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  <a
+                    href="tel:+917300875549"
+                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                  >
                     +91 7300875549
                   </a>
                   <br />
-                  <a href="tel:+918755498866" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  <a
+                    href="tel:+918755498866"
+                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                  >
                     +91 8755498866
                   </a>
                 </div>
@@ -405,7 +461,9 @@ const XIcon = () => (
                 </div>
                 <div>
                   <p className="text-white font-medium">Business Hours</p>
-                  <p className="text-gray-400 text-sm">Mon-Fri: 9:30 AM - 6:30 PM IST</p>
+                  <p className="text-gray-400 text-sm">
+                    Mon-Fri: 9:30 AM - 6:30 PM IST
+                  </p>
                   <p className="text-gray-400 text-sm">Sat-Sun: Closed</p>
                 </div>
               </li>
@@ -420,17 +478,31 @@ const XIcon = () => (
           variants={itemVariants}
           className="flex flex-col md:flex-row items-center justify-between text-gray-400 text-sm"
         >
-          <p>&copy; {new Date().getFullYear()} Oddiant Techlabs LLP. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Oddiant Techlabs LLP. All rights
+            reserved.
+          </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link href="/privacy-policy" className="hover:text-white transition-colors">
+            <a
+              href="/images/logos/PRIVACY-TERMS[1].pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
               Privacy Policy
-            </Link>
-            <Link href="/terms-of-service" className="hover:text-white transition-colors">
+            </a>
+
+            <a
+              href="/terms-of-service"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
               Terms of Service
-            </Link>
+            </a>
           </div>
         </motion.div>
       </div>
     </motion.footer>
-  )
+  );
 }
