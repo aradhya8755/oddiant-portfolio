@@ -1,101 +1,79 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
+import Typed from "typed.js"
 
 interface TypedTextProps {
   strings: string[]
   typeSpeed?: number
   backSpeed?: number
+  backDelay?: number
   loop?: boolean
   showCursor?: boolean
-  backDelay?: number
+  cursorChar?: string
+  className?: string
 }
 
-const TypedText: React.FC<TypedTextProps> = ({
+export default function TypedText({
   strings,
-  typeSpeed = 100,
-  backSpeed = 50,
+  typeSpeed = 70,
+  backSpeed = 40,
+  backDelay = 1000,
   loop = true,
   showCursor = true,
-  backDelay = 1500,
-}) => {
-  const [displayedText, setDisplayedText] = useState("")
-  const [currentStringIndex, setCurrentStringIndex] = useState(0)
-  const [isTyping, setIsTyping] = useState(true)
-  const [isDeleting, setIsDeleting] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  cursorChar = "|",
+  className = "",
+}: TypedTextProps) {
+  const el = useRef<HTMLSpanElement>(null)
+  const typed = useRef<Typed | null>(null)
 
   useEffect(() => {
-    const currentString = strings[currentStringIndex]
+    if (!el.current) return
 
-    const handleTyping = () => {
-      if (!isDeleting) {
-        // Typing forward
-        if (displayedText.length < currentString.length) {
-          setDisplayedText(currentString.substring(0, displayedText.length + 1))
-          timeoutRef.current = setTimeout(handleTyping, typeSpeed)
-        } else {
-          // Finished typing, wait then start deleting (only if loop is true and multiple strings)
-          if (loop && strings.length > 1) {
-            timeoutRef.current = setTimeout(() => {
-              setIsDeleting(true)
-              handleTyping()
-            }, backDelay)
-          }
-        }
-      } else {
-        // Deleting backward
-        if (displayedText.length > 0) {
-          setDisplayedText(displayedText.substring(0, displayedText.length - 1))
-          timeoutRef.current = setTimeout(handleTyping, backSpeed)
-        } else {
-          // Finished deleting, move to next string
-          setIsDeleting(false)
-          setCurrentStringIndex((prevIndex) => (prevIndex + 1) % strings.length)
-        }
-      }
+    // Clean up any previous instance
+    if (typed.current) {
+      typed.current.destroy()
     }
 
-    // Clear any existing timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
+    // Process strings to ensure special characters are handled properly
+    const processedStrings = strings.map((str) => str.replace(/&/g, "&amp;"))
 
-    // Start the typing process
-    timeoutRef.current = setTimeout(handleTyping, isDeleting ? backSpeed : typeSpeed)
+    // Create new Typed instance with optimized settings
+    typed.current = new Typed(el.current, {
+      strings: processedStrings,
+      typeSpeed,
+      backSpeed,
+      backDelay,
+      loop,
+      showCursor,
+      cursorChar,
+      smartBackspace: false,
+      startDelay: 0,
+      autoInsertCss: true,
+      // Additional settings to fix the delay issue
+      contentType: "html",
+      loopCount: loop ? Number.POSITIVE_INFINITY : 0,
+      // Prevent issues with special characters
+      escapeHTML: false,
+      // Ensure smooth transitions
+      fadeOut: false,
+      fadeOutClass: "typed-fade-out",
+      fadeOutDelay: 0,
+      // Prevent any character skipping
+      shuffle: false,
+      // Ensure consistent timing
+      bindInputFocusEvents: false,
+      attr: null,
+      // Improve performance
+      stringsElement: null,
+    })
 
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
+      if (typed.current) {
+        typed.current.destroy()
       }
     }
-  }, [displayedText, currentStringIndex, isDeleting, strings, typeSpeed, backSpeed, loop, backDelay])
+  }, [strings, typeSpeed, backSpeed, backDelay, loop, showCursor, cursorChar])
 
-  return (
-    <>
-      {displayedText}
-      {showCursor && <span className="blinking-cursor">|</span>}
-      <style jsx>{`
-        .blinking-cursor {
-          display: inline-block;
-          width: 0.5em;
-          animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-          from,
-          to {
-            color: transparent;
-          }
-          50% {
-            color: white;
-          }
-        }
-      `}</style>
-    </>
-  )
+  return <span ref={el} className={className}></span>
 }
-
-export default TypedText
