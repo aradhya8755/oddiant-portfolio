@@ -53,61 +53,127 @@ export default function CompanyPage() {
   }
 
   return (
-    <div className="bg-black text-white">
+    <div className="bg-black text-white overflow-hidden">
       {/* Hero Section */}
       <section ref={heroRef} className="relative pt-32 pb-20 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-zinc-900/30" />
+        {/* Enhanced Cosmic Background */}
+        <div className="absolute inset-0 z-0">
+          {/* Base gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-zinc-900 to-black" />
 
-          {/* Animated particles */}
-          <div className="absolute top-0 left-0 w-full h-full">
-            {Array.from({ length: 20 }).map((_, i) => (
+          {/* Animated starfield */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+            {Array.from({ length: 80 }).map((_, i) => (
               <motion.div
-                key={i}
-                className="absolute rounded-full bg-white opacity-20"
+                key={`hero-star-${i}`}
+                className="absolute rounded-full"
                 style={{
-                  width: Math.random() * 4 + 1,
-                  height: Math.random() * 4 + 1,
+                  width: Math.random() * 3 + 1,
+                  height: Math.random() * 3 + 1,
                   top: `${Math.random() * 100}%`,
                   left: `${Math.random() * 100}%`,
+                  background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899"][
+                    Math.floor(Math.random() * 6)
+                  ],
+                  boxShadow: `0 0 ${Math.random() * 8 + 4}px currentColor`,
                 }}
                 animate={{
-                  y: [0, Math.random() * -100 - 50],
-                  opacity: [0, 0.5, 0],
+                  y: [0, Math.random() * -150 - 50],
+                  x: [0, Math.random() * 50 - 25],
+                  opacity: [0, 1, 0],
+                  scale: [0, 1, 0],
                 }}
                 transition={{
-                  duration: Math.random() * 10 + 10,
+                  duration: Math.random() * 12 + 8,
                   repeat: Number.POSITIVE_INFINITY,
                   ease: "linear",
+                  delay: Math.random() * 5,
                 }}
               />
             ))}
           </div>
 
+          {/* Orbital rings */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <motion.div
+                key={`hero-orbit-${i}`}
+                className="absolute border border-white/10 rounded-full"
+                style={{
+                  width: 200 + i * 120,
+                  height: 200 + i * 120,
+                }}
+                animate={{
+                  rotate: 360,
+                }}
+                transition={{
+                  duration: 25 + i * 10,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "linear",
+                }}
+              >
+                {Array.from({ length: 2 + i }).map((_, j) => (
+                  <motion.div
+                    key={`hero-orbital-particle-${i}-${j}`}
+                    className="absolute w-2 h-2 rounded-full"
+                    style={{
+                      background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][i],
+                      top: "50%",
+                      left: "50%",
+                      transformOrigin: `${100 + i * 60}px 0`,
+                      boxShadow: `0 0 8px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][i]}`,
+                    }}
+                    animate={{
+                      rotate: -360,
+                    }}
+                    transition={{
+                      duration: 20 + j * 5,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "linear",
+                      delay: j * 2,
+                    }}
+                  />
+                ))}
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Enhanced gradient orbs */}
           <motion.div
-            className="absolute top-1/3 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full filter blur-3xl"
+            className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full filter blur-3xl"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(59,130,246,0.3) 0%, rgba(139,92,246,0.2) 50%, transparent 100%)",
+            }}
             animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.1, 0.15, 0.1],
+              scale: [1, 1.3, 1],
+              opacity: [0.3, 0.5, 0.3],
+              x: [0, 40, 0],
+              y: [0, -20, 0],
             }}
             transition={{
-              duration: 8,
+              duration: 15,
               repeat: Number.POSITIVE_INFINITY,
               repeatType: "reverse",
             }}
           />
           <motion.div
-            className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full filter blur-3xl"
+            className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full filter blur-3xl"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(16,185,129,0.3) 0%, rgba(245,158,11,0.2) 50%, transparent 100%)",
+            }}
             animate={{
               scale: [1, 1.2, 1],
-              opacity: [0.1, 0.15, 0.1],
+              opacity: [0.3, 0.4, 0.3],
+              x: [0, -30, 0],
+              y: [0, 25, 0],
             }}
             transition={{
-              duration: 8,
+              duration: 18,
               repeat: Number.POSITIVE_INFINITY,
               repeatType: "reverse",
-              delay: 1,
+              delay: 2,
             }}
           />
         </div>
@@ -119,7 +185,7 @@ export default function CompanyPage() {
             variants={fadeInUpVariants}
             className="max-w-3xl mx-auto text-center"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
               Company
             </h1>
             <p className="text-xl text-gray-300">
@@ -130,8 +196,52 @@ export default function CompanyPage() {
       </section>
 
       {/* About Us Section */}
-      <section ref={aboutRef} className="py-20 bg-gradient-to-b from-zinc-900 to-black">
-        <div className="container mx-auto px-4">
+      <section ref={aboutRef} className="py-20 relative overflow-hidden">
+        {/* Enhanced background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-black" />
+
+        {/* Floating particles */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 40 }).map((_, i) => (
+            <motion.div
+              key={`about-particle-${i}`}
+              className="absolute rounded-full"
+              style={{
+                width: Math.random() * 2 + 1,
+                height: Math.random() * 2 + 1,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][Math.floor(Math.random() * 4)],
+                boxShadow: `0 0 ${Math.random() * 6 + 3}px currentColor`,
+              }}
+              animate={{
+                y: [0, Math.random() * -80 - 20],
+                opacity: [0, 0.8, 0],
+                scale: [0, 1, 0],
+              }}
+              transition={{
+                duration: Math.random() * 8 + 6,
+                repeat: Number.POSITIVE_INFINITY,
+                delay: Math.random() * 5,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Geometric shapes */}
+        <motion.div
+          className="absolute top-20 left-10 w-24 h-24 border border-blue-500/20 rounded-full"
+          animate={{
+            rotate: 360,
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            rotate: { duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
+            scale: { duration: 6, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
+          }}
+        />
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <motion.div
               initial="hidden"
@@ -151,7 +261,7 @@ export default function CompanyPage() {
                 </div>
               </div>
 
-              {/* Floating elements */}
+              {/* Enhanced floating elements */}
               <motion.div
                 className="absolute -top-8 -right-8 w-24 h-24 bg-blue-500/30 rounded-full filter blur-xl"
                 animate={{
@@ -222,8 +332,57 @@ export default function CompanyPage() {
       </section>
 
       {/* Vision & Mission Section */}
-      <section ref={visionRef} className="py-24 bg-gradient-to-r from-blue-900/20 to-purple-900/20">
-        <div className="container mx-auto px-4">
+      <section ref={visionRef} className="py-24 relative overflow-hidden">
+        {/* Enhanced cosmic background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-purple-900/20" />
+
+        {/* Spiral galaxy effect */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <motion.div
+              key={`vision-spiral-${i}`}
+              className="absolute"
+              style={{
+                width: 250 + i * 80,
+                height: 250 + i * 80,
+              }}
+              animate={{
+                rotate: 360,
+              }}
+              transition={{
+                duration: 30 + i * 8,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "linear",
+              }}
+            >
+              {Array.from({ length: 8 }).map((_, j) => (
+                <motion.div
+                  key={`vision-spiral-particle-${i}-${j}`}
+                  className="absolute w-1 h-1 rounded-full"
+                  style={{
+                    background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899"][i],
+                    top: "50%",
+                    left: "50%",
+                    transformOrigin: `${125 + i * 40}px 0`,
+                    transform: `rotate(${j * 45}deg)`,
+                    boxShadow: `0 0 4px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899"][i]}`,
+                  }}
+                  animate={{
+                    opacity: [0, 1, 0],
+                    scale: [0.5, 1, 0.5],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Number.POSITIVE_INFINITY,
+                    delay: j * 0.2,
+                  }}
+                />
+              ))}
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="hidden"
             animate={isVisionInView ? "visible" : "hidden"}
@@ -316,9 +475,57 @@ export default function CompanyPage() {
       </section>
 
       {/* Team Section */}
-      <section ref={teamRef} className="py-24 bg-gradient-to-b from-zinc-900 to-black relative overflow-hidden">
-        {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/10 to-purple-900/10" />
+      <section ref={teamRef} className="py-24 relative overflow-hidden">
+        {/* Enhanced background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-black" />
+
+        {/* Network constellation */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 25 }).map((_, i) => (
+            <motion.div
+              key={`team-node-${i}`}
+              className="absolute w-2 h-2 rounded-full"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][Math.floor(Math.random() * 5)],
+                boxShadow: `0 0 8px currentColor`,
+              }}
+              animate={{
+                scale: [1, 1.5, 1],
+                opacity: [0.5, 1, 0.5],
+              }}
+              transition={{
+                duration: Math.random() * 3 + 2,
+                repeat: Number.POSITIVE_INFINITY,
+                delay: Math.random() * 3,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Floating hexagons */}
+        {Array.from({ length: 4 }).map((_, i) => (
+          <motion.div
+            key={`team-hexagon-${i}`}
+            className="absolute border border-white/10"
+            style={{
+              width: 50 + i * 15,
+              height: 50 + i * 15,
+              clipPath: "polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)",
+              top: `${20 + i * 20}%`,
+              left: `${15 + i * 20}%`,
+            }}
+            animate={{
+              rotate: 360,
+              y: [0, -25, 0],
+            }}
+            transition={{
+              rotate: { duration: 15 + i * 5, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
+              y: { duration: 6 + i * 2, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
+            }}
+          />
+        ))}
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -374,7 +581,7 @@ export default function CompanyPage() {
               },
             ].map((member, idx) => (
               <motion.div key={member.name} variants={fadeInUpVariants} className="group">
-                <Card className="bg-white/5 backdrop-blur-sm border-zinc-800 p-6 flex flex-col items-center text-center group-hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
+                <Card className="bg-white/5 backdrop-blur-sm border-zinc-800 p-6 flex flex-col items-center text-center group-hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10">
                   <div className="relative mb-6">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-md opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
                     <Avatar className="w-28 h-28 border-4 border-white/10 shadow-xl group-hover:scale-105 transition-transform duration-300">
@@ -403,8 +610,66 @@ export default function CompanyPage() {
       </section>
 
       {/* Certifications Section */}
-      <section ref={certRef} className="py-24 bg-gradient-to-r from-blue-900/20 to-purple-900/20">
-        <div className="container mx-auto px-4">
+      <section ref={certRef} className="py-24 relative overflow-hidden">
+        {/* Enhanced background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-purple-900/20" />
+
+        {/* Shooting stars */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <motion.div
+              key={`cert-shooting-star-${i}`}
+              className="absolute h-0.5 rounded-full"
+              style={{
+                width: Math.random() * 80 + 40,
+                background: `linear-gradient(90deg, ${
+                  ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][Math.floor(Math.random() * 5)]
+                }, transparent)`,
+                top: `${Math.random() * 100}%`,
+                left: "-100px",
+                boxShadow: `0 0 8px currentColor`,
+              }}
+              animate={{
+                x: ["0px", "100vw"],
+                opacity: [0, 1, 0],
+              }}
+              transition={{
+                duration: Math.random() * 2 + 1.5,
+                repeat: Number.POSITIVE_INFINITY,
+                delay: Math.random() * 6,
+                ease: "linear",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Pulsing energy rings */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <motion.div
+              key={`cert-energy-ring-${i}`}
+              className="absolute border rounded-full"
+              style={{
+                width: 150 + i * 100,
+                height: 150 + i * 100,
+                borderColor: ["#3B82F6", "#8B5CF6", "#10B981"][i],
+                borderWidth: "1px",
+                opacity: 0.2,
+              }}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.2, 0.4, 0.2],
+              }}
+              transition={{
+                duration: 3 + i * 2,
+                repeat: Number.POSITIVE_INFINITY,
+                delay: i * 0.5,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="hidden"
             animate={isCertInView ? "visible" : "hidden"}
@@ -464,7 +729,7 @@ export default function CompanyPage() {
               },
             ].map((cert, idx) => (
               <motion.div key={cert.name} variants={fadeInUpVariants} className="group">
-                <Card className="bg-white/5 backdrop-blur-sm border-zinc-800 p-8 flex flex-col items-center text-center h-full group-hover:bg-white/10 transition-all duration-300 hover:shadow-xl">
+                <Card className="bg-white/5 backdrop-blur-sm border-zinc-800 p-8 flex flex-col items-center text-center h-full group-hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/10">
                   <div className="relative h-24 w-48 mb-6">
                     <div className="absolute inset-0 bg-white rounded-lg"></div>
                     <Image src={cert.logo || "/placeholder.svg"} alt={cert.name} fill className="object-contain p-2" />

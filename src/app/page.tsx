@@ -14,7 +14,6 @@ import {
   UserPlus,
   BookOpen,
   CheckCircle,
-  ChevronRight,
   Sparkles,
   Zap,
   Shield,
@@ -107,59 +106,143 @@ export default function Home() {
         className="relative min-h-screen flex items-center justify-center overflow-hidden"
       >
         {/* Background Elements */}
+        {/* Enhanced Starfield and Orbital Background */}
         <div className="absolute inset-0 z-0">
-          {/* Animated gradient background */}
+          {/* Base gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-black via-zinc-900 to-black" />
 
-          {/* Animated particles */}
-          <div className="absolute top-0 left-0 w-full h-full">
-            {Array.from({ length: 20 }).map((_, i) => (
+          {/* Colorful moving stars */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+            {Array.from({ length: 100 }).map((_, i) => (
               <motion.div
-                key={i}
-                className="absolute rounded-full bg-white opacity-20"
+                key={`star-${i}`}
+                className="absolute rounded-full"
                 style={{
-                  width: Math.random() * 4 + 1,
-                  height: Math.random() * 4 + 1,
+                  width: Math.random() * 3 + 1,
+                  height: Math.random() * 3 + 1,
                   top: `${Math.random() * 100}%`,
                   left: `${Math.random() * 100}%`,
+                  background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#06B6D4", "#84CC16"][
+                    Math.floor(Math.random() * 8)
+                  ],
+                  boxShadow: `0 0 ${Math.random() * 10 + 5}px currentColor`,
                 }}
                 animate={{
-                  y: [0, Math.random() * -100 - 50],
-                  opacity: [0, 0.5, 0],
+                  y: [0, Math.random() * -200 - 100],
+                  x: [0, Math.random() * 100 - 50],
+                  opacity: [0, 1, 0],
+                  scale: [0, 1, 0],
                 }}
                 transition={{
-                  duration: Math.random() * 10 + 10,
+                  duration: Math.random() * 15 + 10,
                   repeat: Number.POSITIVE_INFINITY,
                   ease: "linear",
+                  delay: Math.random() * 5,
                 }}
               />
             ))}
           </div>
 
-          {/* Animated Shapes */}
+          {/* Orbital rings */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <motion.div
+                key={`orbit-${i}`}
+                className="absolute border border-white/10 rounded-full"
+                style={{
+                  width: 200 + i * 150,
+                  height: 200 + i * 150,
+                }}
+                animate={{
+                  rotate: 360,
+                }}
+                transition={{
+                  duration: 20 + i * 10,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "linear",
+                }}
+              >
+                {/* Orbital particles */}
+                {Array.from({ length: 3 + i }).map((_, j) => (
+                  <motion.div
+                    key={`orbital-particle-${i}-${j}`}
+                    className="absolute w-2 h-2 rounded-full"
+                    style={{
+                      background: `linear-gradient(45deg, ${
+                        ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][i]
+                      }, ${["#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899"][i]})`,
+                      top: "50%",
+                      left: "50%",
+                      transformOrigin: `${100 + i * 75}px 0`,
+                      boxShadow: `0 0 10px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][i]}`,
+                    }}
+                    animate={{
+                      rotate: -360,
+                    }}
+                    transition={{
+                      duration: 15 + j * 5,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "linear",
+                      delay: j * 2,
+                    }}
+                  />
+                ))}
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Enhanced floating gradient orbs */}
           <motion.div
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl"
+            className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full filter blur-3xl"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(59,130,246,0.3) 0%, rgba(139,92,246,0.2) 50%, transparent 100%)",
+            }}
             animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.1, 0.15, 0.1],
+              scale: [1, 1.3, 1],
+              opacity: [0.3, 0.6, 0.3],
+              x: [0, 50, 0],
+              y: [0, -30, 0],
             }}
             transition={{
-              duration: 8,
+              duration: 12,
               repeat: Number.POSITIVE_INFINITY,
               repeatType: "reverse",
             }}
           />
           <motion.div
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full filter blur-3xl"
+            className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full filter blur-3xl"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(16,185,129,0.3) 0%, rgba(245,158,11,0.2) 50%, transparent 100%)",
+            }}
             animate={{
               scale: [1, 1.2, 1],
-              opacity: [0.1, 0.15, 0.1],
+              opacity: [0.3, 0.5, 0.3],
+              x: [0, -40, 0],
+              y: [0, 40, 0],
             }}
             transition={{
-              duration: 8,
+              duration: 15,
               repeat: Number.POSITIVE_INFINITY,
               repeatType: "reverse",
-              delay: 1,
+              delay: 2,
+            }}
+          />
+          <motion.div
+            className="absolute top-1/2 right-1/3 w-64 h-64 rounded-full filter blur-2xl"
+            style={{
+              background: "radial-gradient(circle, rgba(236,72,153,0.4) 0%, rgba(6,182,212,0.2) 50%, transparent 100%)",
+            }}
+            animate={{
+              scale: [1, 1.4, 1],
+              opacity: [0.2, 0.7, 0.2],
+              rotate: [0, 180, 360],
+            }}
+            transition={{
+              duration: 18,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "linear",
             }}
           />
         </div>
@@ -238,7 +321,7 @@ export default function Home() {
                 hidden: { opacity: 0 },
                 visible: { opacity: 1, transition: { delay: 1.5, duration: 1 } },
               }}
-               className="absolute bottom-10 left-0 right-0 flex justify-center"
+              className="absolute bottom-10 left-0 right-0 flex justify-center"
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
             >
@@ -258,8 +341,68 @@ export default function Home() {
       </motion.section>
 
       {/* Services Section */}
-      <section ref={servicesRef} className="py-24 bg-gradient-to-b from-black to-zinc-900">
-        <div className="container mx-auto px-4">
+      <section ref={servicesRef} className="py-24 relative overflow-hidden">
+        {/* Enhanced background for services */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black to-zinc-900" />
+
+        {/* Animated constellation pattern */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 50 }).map((_, i) => (
+            <motion.div
+              key={`service-star-${i}`}
+              className="absolute"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+              }}
+              initial={{ opacity: 0 }}
+              animate={{
+                opacity: [0, 1, 0],
+                scale: [0.5, 1.5, 0.5],
+              }}
+              transition={{
+                duration: Math.random() * 8 + 4,
+                repeat: Number.POSITIVE_INFINITY,
+                delay: Math.random() * 5,
+              }}
+            >
+              <div
+                className="w-1 h-1 rounded-full"
+                style={{
+                  background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][Math.floor(Math.random() * 4)],
+                  boxShadow: `0 0 ${Math.random() * 8 + 4}px currentColor`,
+                }}
+              />
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Floating geometric shapes */}
+        <motion.div
+          className="absolute top-20 left-10 w-32 h-32 border border-blue-500/20 rounded-full"
+          animate={{
+            rotate: 360,
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            rotate: { duration: 25, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
+            scale: { duration: 8, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
+          }}
+        />
+        <motion.div
+          className="absolute bottom-20 right-10 w-24 h-24 border border-purple-500/20"
+          style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}
+          animate={{
+            rotate: -360,
+            y: [0, -20, 0],
+          }}
+          transition={{
+            rotate: { duration: 30, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
+            y: { duration: 6, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
+          }}
+        />
+
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="hidden"
             animate={isServicesInView ? "visible" : "hidden"}
@@ -330,8 +473,59 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section ref={aboutRef} className="py-24 bg-gradient-to-br from-zinc-900 to-black">
-        <div className="container mx-auto px-4">
+      <section ref={aboutRef} className="py-24 relative overflow-hidden">
+        {/* Dynamic background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 to-black" />
+
+        {/* Spiral galaxy effect */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <motion.div
+              key={`spiral-${i}`}
+              className="absolute"
+              style={{
+                width: 300 + i * 100,
+                height: 300 + i * 100,
+              }}
+              animate={{
+                rotate: 360,
+              }}
+              transition={{
+                duration: 40 + i * 10,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "linear",
+              }}
+            >
+              {Array.from({ length: 12 }).map((_, j) => (
+                <motion.div
+                  key={`spiral-particle-${i}-${j}`}
+                  className="absolute w-1 h-1 rounded-full"
+                  style={{
+                    background: `linear-gradient(45deg, ${
+                      ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#06B6D4", "#84CC16"][i]
+                    }, transparent)`,
+                    top: "50%",
+                    left: "50%",
+                    transformOrigin: `${150 + i * 50}px 0`,
+                    transform: `rotate(${j * 30}deg)`,
+                    boxShadow: `0 0 6px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#06B6D4", "#84CC16"][i]}`,
+                  }}
+                  animate={{
+                    opacity: [0, 1, 0],
+                    scale: [0.5, 1, 0.5],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Number.POSITIVE_INFINITY,
+                    delay: j * 0.3,
+                  }}
+                />
+              ))}
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <motion.div initial="hidden" animate={isAboutInView ? "visible" : "hidden"} variants={fadeInUpVariants}>
               <div className="inline-block mb-3">
@@ -464,8 +658,59 @@ export default function Home() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-24 bg-gradient-to-b from-black to-zinc-900">
-        <div className="container mx-auto px-4">
+      <section className="py-24 relative overflow-hidden">
+        {/* Enhanced background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black to-zinc-900" />
+
+        {/* Network constellation */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <motion.div
+              key={`network-node-${i}`}
+              className="absolute w-2 h-2 rounded-full"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][Math.floor(Math.random() * 5)],
+                boxShadow: `0 0 10px currentColor`,
+              }}
+              animate={{
+                scale: [1, 1.5, 1],
+                opacity: [0.5, 1, 0.5],
+              }}
+              transition={{
+                duration: Math.random() * 4 + 2,
+                repeat: Number.POSITIVE_INFINITY,
+                delay: Math.random() * 3,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Floating hexagons */}
+        {Array.from({ length: 6 }).map((_, i) => (
+          <motion.div
+            key={`hexagon-${i}`}
+            className="absolute border border-white/10"
+            style={{
+              width: 60 + i * 20,
+              height: 60 + i * 20,
+              clipPath: "polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)",
+              top: `${20 + i * 15}%`,
+              left: `${10 + i * 15}%`,
+            }}
+            animate={{
+              rotate: 360,
+              y: [0, -30, 0],
+            }}
+            transition={{
+              rotate: { duration: 20 + i * 5, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
+              y: { duration: 8 + i * 2, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
+            }}
+          />
+        ))}
+
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -551,15 +796,136 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 bg-gradient-to-b from-zinc-900 to-black">
-        <div className="container mx-auto px-4">
+      <section className="py-24 relative overflow-hidden">
+        {/* Enhanced background for FAQ section */}
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-black" />
+
+        {/* Cosmic nebula effect */}
+        <div className="absolute inset-0 opacity-30">
+          <motion.div
+            className="absolute top-0 left-0 w-full h-full"
+            style={{
+              background:
+                "radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.15) 0%, rgba(30,27,75,0.1) 50%, transparent 100%)",
+            }}
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.4, 0.3],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Number.POSITIVE_INFINITY,
+              repeatType: "reverse",
+            }}
+          />
+        </div>
+
+        {/* Floating particles */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <motion.div
+              key={`faq-particle-${i}`}
+              className="absolute rounded-full"
+              style={{
+                width: Math.random() * 3 + 1,
+                height: Math.random() * 3 + 1,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EC4899"][Math.floor(Math.random() * 5)],
+                boxShadow: `0 0 ${Math.random() * 6 + 3}px currentColor`,
+              }}
+              animate={{
+                y: [0, Math.random() * -50 - 20],
+                opacity: [0, 0.7, 0],
+                scale: [0, 1, 0],
+              }}
+              transition={{
+                duration: Math.random() * 10 + 5,
+                repeat: Number.POSITIVE_INFINITY,
+                delay: Math.random() * 5,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Orbital rings */}
+        <motion.div
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-purple-500/10 rounded-full"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 40, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-blue-500/10 rounded-full"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 30, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+        />
+
+        <div className="container mx-auto px-4 relative z-10">
           <FAQSection />
         </div>
       </section>
 
       {/* CTA Section */}
-      <section ref={ctaRef} className="py-24 bg-gradient-to-r from-blue-900/20 to-purple-900/20">
-        <div className="container mx-auto px-4">
+      <section ref={ctaRef} className="py-24 relative overflow-hidden">
+        {/* Enhanced CTA background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-purple-900/20" />
+
+        {/* Shooting stars */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 15 }).map((_, i) => (
+            <motion.div
+              key={`shooting-star-${i}`}
+              className="absolute h-0.5 rounded-full"
+              style={{
+                width: Math.random() * 100 + 50,
+                background: `linear-gradient(90deg, ${
+                  ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][Math.floor(Math.random() * 5)]
+                }, transparent)`,
+                top: `${Math.random() * 100}%`,
+                left: "-100px",
+                boxShadow: `0 0 10px currentColor`,
+              }}
+              animate={{
+                x: ["0px", "100vw"],
+                opacity: [0, 1, 0],
+              }}
+              transition={{
+                duration: Math.random() * 3 + 2,
+                repeat: Number.POSITIVE_INFINITY,
+                delay: Math.random() * 8,
+                ease: "linear",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Pulsing energy rings */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <motion.div
+              key={`energy-ring-${i}`}
+              className="absolute border rounded-full"
+              style={{
+                width: 200 + i * 150,
+                height: 200 + i * 150,
+                borderColor: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][i],
+                borderWidth: "1px",
+                opacity: 0.3,
+              }}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.6, 0.3],
+              }}
+              transition={{
+                duration: 4 + i * 2,
+                repeat: Number.POSITIVE_INFINITY,
+                delay: i * 0.5,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="hidden"
             animate={isCtaInView ? "visible" : "hidden"}

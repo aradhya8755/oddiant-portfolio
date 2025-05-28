@@ -1,54 +1,101 @@
 "use client"
 
-import { useEffect, useRef } from "react"
-import Typed from "typed.js"
+import type React from "react"
+
+import { useState, useEffect, useRef } from "react"
 
 interface TypedTextProps {
   strings: string[]
   typeSpeed?: number
   backSpeed?: number
-  backDelay?: number
   loop?: boolean
   showCursor?: boolean
-  cursorChar?: string
-  className?: string
+  backDelay?: number
 }
 
-export default function TypedText({
+const TypedText: React.FC<TypedTextProps> = ({
   strings,
-  typeSpeed = 70,
-  backSpeed = 70,
-  backDelay = 3000,
+  typeSpeed = 100,
+  backSpeed = 50,
   loop = true,
   showCursor = true,
-  cursorChar = "|",
-  className = "",
-}: TypedTextProps) {
-  const el = useRef<HTMLSpanElement>(null)
-  const typed = useRef<Typed | null>(null)
+  backDelay = 1500,
+}) => {
+  const [displayedText, setDisplayedText] = useState("")
+  const [currentStringIndex, setCurrentStringIndex] = useState(0)
+  const [isTyping, setIsTyping] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    if (el.current) {
-      typed.current = new Typed(el.current, {
-        strings,
-        typeSpeed,
-        backSpeed,
-        backDelay,
-        loop,
-        showCursor,
-        cursorChar,
-        smartBackspace: true,
-      })
-    }
+    const currentString = strings[currentStringIndex]
 
-    return () => {
-      // Make sure to destroy Typed instance on unmounting
-      // to prevent memory leaks
-      if (typed.current) {
-        typed.current.destroy()
+    const handleTyping = () => {
+      if (!isDeleting) {
+        // Typing forward
+        if (displayedText.length < currentString.length) {
+          setDisplayedText(currentString.substring(0, displayedText.length + 1))
+          timeoutRef.current = setTimeout(handleTyping, typeSpeed)
+        } else {
+          // Finished typing, wait then start deleting (only if loop is true and multiple strings)
+          if (loop && strings.length > 1) {
+            timeoutRef.current = setTimeout(() => {
+              setIsDeleting(true)
+              handleTyping()
+            }, backDelay)
+          }
+        }
+      } else {
+        // Deleting backward
+        if (displayedText.length > 0) {
+          setDisplayedText(displayedText.substring(0, displayedText.length - 1))
+          timeoutRef.current = setTimeout(handleTyping, backSpeed)
+        } else {
+          // Finished deleting, move to next string
+          setIsDeleting(false)
+          setCurrentStringIndex((prevIndex) => (prevIndex + 1) % strings.length)
+        }
       }
     }
-  }, [strings, typeSpeed, backSpeed, backDelay, loop, showCursor, cursorChar])
 
-  return <span ref={el} className={className}></span>
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+
+    // Start the typing process
+    timeoutRef.current = setTimeout(handleTyping, isDeleting ? backSpeed : typeSpeed)
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [displayedText, currentStringIndex, isDeleting, strings, typeSpeed, backSpeed, loop, backDelay])
+
+  return (
+    <>
+      {displayedText}
+      {showCursor && <span className="blinking-cursor">|</span>}
+      <style jsx>{`
+        .blinking-cursor {
+          display: inline-block;
+          width: 0.5em;
+          animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+          from,
+          to {
+            color: transparent;
+          }
+          50% {
+            color: white;
+          }
+        }
+      `}</style>
+    </>
+  )
 }
+
+export default TypedText

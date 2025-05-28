@@ -99,23 +99,119 @@ export default function WhatMakesUsDifferent() {
   }
 
   return (
-    <section className="py-24 bg-gradient-to-b from-zinc-900 to-black relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 z-0">
-        <div
-          className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/10 rounded-full filter blur-3xl animate-pulse"
-          style={{ animationDuration: "15s" }}
-        />
-        <div
-          className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-500/10 rounded-full filter blur-3xl animate-pulse"
-          style={{ animationDuration: "20s", animationDelay: "2s" }}
-        />
+    <section className="py-24 relative overflow-hidden">
+      {/* Enhanced cosmic background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-black" />
+
+      {/* Animated constellation pattern */}
+      <div className="absolute inset-0">
+        {Array.from({ length: 50 }).map((_, i) => (
+          <motion.div
+            key={`diff-star-${i}`}
+            className="absolute"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+            }}
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: [0, 1, 0],
+              scale: [0.5, 1.5, 0.5],
+            }}
+            transition={{
+              duration: Math.random() * 6 + 4,
+              repeat: Number.POSITIVE_INFINITY,
+              delay: Math.random() * 5,
+            }}
+          >
+            <div
+              className="w-1 h-1 rounded-full"
+              style={{
+                background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][Math.floor(Math.random() * 4)],
+                boxShadow: `0 0 ${Math.random() * 6 + 3}px currentColor`,
+              }}
+            />
+          </motion.div>
+        ))}
       </div>
+
+      {/* Floating geometric shapes */}
+      <motion.div
+        className="absolute top-20 left-10 w-24 h-24 border border-blue-500/20 rounded-full"
+        animate={{
+          rotate: 360,
+          scale: [1, 1.1, 1],
+        }}
+        transition={{
+          rotate: { duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
+          scale: { duration: 6, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
+        }}
+      />
+      <motion.div
+        className="absolute bottom-20 right-10 w-20 h-20 border border-purple-500/20"
+        style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}
+        animate={{
+          rotate: -360,
+          y: [0, -20, 0],
+        }}
+        transition={{
+          rotate: { duration: 25, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
+          y: { duration: 5, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
+        }}
+      />
+
+      {/* Enhanced gradient orbs */}
+      <motion.div
+        className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full filter blur-3xl opacity-20"
+        style={{
+          background: "radial-gradient(circle, rgba(59,130,246,0.4) 0%, rgba(139,92,246,0.2) 50%, transparent 100%)",
+        }}
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.2, 0.3, 0.2],
+          x: [0, 30, 0],
+          y: [0, -20, 0],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Number.POSITIVE_INFINITY,
+          repeatType: "reverse",
+        }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full filter blur-3xl opacity-20"
+        style={{
+          background: "radial-gradient(circle, rgba(16,185,129,0.4) 0%, rgba(245,158,11,0.2) 50%, transparent 100%)",
+        }}
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.2, 0.3, 0.2],
+          x: [0, -25, 0],
+          y: [0, 20, 0],
+        }}
+        transition={{
+          duration: 18,
+          repeat: Number.POSITIVE_INFINITY,
+          repeatType: "reverse",
+          delay: 2,
+        }}
+      />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-12">
+          <div className="inline-block mb-3">
+            <div className="flex items-center justify-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+              >
+                ⚡
+              </motion.div>
+              <span className="text-sm font-medium text-amber-400">What Makes Us Different</span>
+            </div>
+          </div>
           <motion.h2
-            className="text-3xl font-bold mb-4"
+            className="text-3xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -151,7 +247,7 @@ export default function WhatMakesUsDifferent() {
                   whileHover={{ scale: 1.05 }}
                   className="h-full"
                 >
-                  <Card className="bg-white/5 backdrop-blur-sm border-zinc-700/50 h-full shadow-custom-shadow hover:shadow-hover-shadow transition-all duration-300">
+                  <Card className="bg-white/5 backdrop-blur-sm border-zinc-700/50 h-full shadow-xl hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300">
                     <CardContent className="p-6 h-full flex flex-col">
                       <div className="mb-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 p-3 rounded-lg w-fit">
                         {item.icon}
@@ -169,7 +265,7 @@ export default function WhatMakesUsDifferent() {
           <div className="flex justify-center mt-8 gap-4">
             <button
               onClick={handlePrev}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors duration-300"
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors duration-300 border border-white/20"
               aria-label="Previous slide"
             >
               <ChevronLeft className="w-6 h-6" />
@@ -183,7 +279,7 @@ export default function WhatMakesUsDifferent() {
                     setCurrentIndex(idx)
                   }}
                   className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                    idx === currentIndex ? "bg-blue-500 w-4" : "bg-white/30"
+                    idx === currentIndex ? "bg-blue-500 w-4 shadow-lg shadow-blue-500/50" : "bg-white/30"
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />
@@ -191,7 +287,7 @@ export default function WhatMakesUsDifferent() {
             </div>
             <button
               onClick={handleNext}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors duration-300"
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors duration-300 border border-white/20"
               aria-label="Next slide"
             >
               <ChevronRight className="w-6 h-6" />
