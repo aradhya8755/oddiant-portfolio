@@ -50,22 +50,14 @@ export default function TypedText({
       smartBackspace: false,
       startDelay: 0,
       autoInsertCss: true,
-      // Additional settings to fix the delay issue
       contentType: "html",
       loopCount: loop ? Number.POSITIVE_INFINITY : 0,
-      // Prevent issues with special characters
-      escapeHTML: false,
-      // Ensure smooth transitions
       fadeOut: false,
       fadeOutClass: "typed-fade-out",
       fadeOutDelay: 0,
-      // Prevent any character skipping
       shuffle: false,
-      // Ensure consistent timing
       bindInputFocusEvents: false,
-      attr: null,
-      // Improve performance
-      stringsElement: null,
+      stringsElement: undefined, 
     })
 
     return () => {
