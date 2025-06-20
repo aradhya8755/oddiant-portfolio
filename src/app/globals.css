@@ -129,7 +129,10 @@
     }
   }
 }
-
+ ::selection {
+  background: #dc1212;
+  color: #fffbfb; 
+}
 
 
 @layer base {
