@@ -128,7 +128,6 @@ async function createFallbackNewsletterExcel(): Promise<Buffer> {
       fgColor: { argb: "FFE0E0E0" },
     }
 
-    // Commit the styling
     headerRow.commit()
 
     // Generate buffer directly without saving to file
