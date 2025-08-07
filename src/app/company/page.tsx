@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import Testimonials from "@/components/Testimonials"
-import ClientsPlanetary from "@/components/ClientsPlanetary"
+// import ClientsPlanetary from "@/components/ClientsPlanetary"
 import WhyChooseUs from "@/components/why-choose-us"
 import WhatMakesUsDifferent from "@/components/what-makes-us"
 import { ArrowRight, CheckCircle, Target, Compass, Award, Users, Building } from "lucide-react"
@@ -471,15 +471,13 @@ export default function CompanyPage() {
 
       {/* Clients Section */}
       <section>
-        <ClientsPlanetary />
+        {/* <ClientsPlanetary /> */}
       </section>
 
       {/* Team Section */}
-      <section ref={teamRef} className="py-24 relative overflow-hidden">
-        {/* Enhanced background */}
+      {/* <section ref={teamRef} className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-black" />
 
-        {/* Network constellation */}
         <div className="absolute inset-0">
           {Array.from({ length: 25 }).map((_, i) => (
             <motion.div
@@ -504,7 +502,6 @@ export default function CompanyPage() {
           ))}
         </div>
 
-        {/* Floating hexagons */}
         {Array.from({ length: 4 }).map((_, i) => (
           <motion.div
             key={`team-hexagon-${i}`}
@@ -602,7 +599,7 @@ export default function CompanyPage() {
             ))}
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
       {/* Testimonials section */}
       <section>
