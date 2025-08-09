@@ -6,6 +6,7 @@ import { motion, useInView } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight, Monitor, Users, UserPlus, BookOpen, CheckCircle, Sparkles, Zap, Star, Rocket } from "lucide-react"
+import CanvasStarfield from "@/components/visuals/CanvasStarfield"
 
 export default function SolutionsPage() {
   const heroRef = useRef<HTMLDivElement>(null)
@@ -150,146 +151,25 @@ export default function SolutionsPage() {
   return (
     <div className="bg-black text-white overflow-hidden">
       {/* Hero Section */}
-      <section ref={heroRef} className="relative pt-32 pb-20 overflow-hidden">
-        {/* Enhanced Cosmic Background */}
-        <div className="absolute inset-0 z-0">
-          {/* Base gradient */}
+      <section ref={heroRef} className="relative pt-32 pb-20 overflow-hidden" style={{ contain: "layout paint style", contentVisibility: "auto", containIntrinsicSize: "720px" }}>
+        <div className="absolute inset-0 z-0" style={{ pointerEvents: "none" }}>
           <div className="absolute inset-0 bg-gradient-to-b from-black via-zinc-900 to-black" />
-
-          {/* Animated starfield */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-            {Array.from({ length: 100 }).map((_, i) => (
-              <motion.div
-                key={`hero-star-${i}`}
-                className="absolute rounded-full"
-                style={{
-                  width: Math.random() * 3 + 1,
-                  height: Math.random() * 3 + 1,
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#06B6D4"][
-                    Math.floor(Math.random() * 7)
-                  ],
-                  boxShadow: `0 0 ${Math.random() * 10 + 5}px currentColor`,
-                }}
-                animate={{
-                  y: [0, Math.random() * -200 - 100],
-                  x: [0, Math.random() * 100 - 50],
-                  opacity: [0, 1, 0],
-                  scale: [0, 1, 0],
-                }}
-                transition={{
-                  duration: Math.random() * 15 + 10,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                  delay: Math.random() * 5,
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Orbital rings */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            {Array.from({ length: 5 }).map((_, i) => (
+          <CanvasStarfield className="absolute inset-0" count={140} opacity={0.85} maxFPS={28} quality="balanced" />
+          {/* Slim orbital rings (reduced count) */}
+          <div className="absolute inset-0 flex items-center justify-center" style={{ willChange: "transform" }}>
+            {Array.from({ length: 3 }).map((_, i) => (
               <motion.div
                 key={`hero-orbit-${i}`}
                 className="absolute border border-white/10 rounded-full"
-                style={{
-                  width: 200 + i * 150,
-                  height: 200 + i * 150,
-                }}
-                animate={{
-                  rotate: 360,
-                }}
-                transition={{
-                  duration: 20 + i * 10,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                }}
-              >
-                {/* Orbital particles */}
-                {Array.from({ length: 3 + i }).map((_, j) => (
-                  <motion.div
-                    key={`hero-orbital-particle-${i}-${j}`}
-                    className="absolute w-2 h-2 rounded-full"
-                    style={{
-                      background: `linear-gradient(45deg, ${
-                        ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][i]
-                      }, ${["#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899"][i]})`,
-                      top: "50%",
-                      left: "50%",
-                      transformOrigin: `${100 + i * 75}px 0`,
-                      boxShadow: `0 0 10px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][i]}`,
-                    }}
-                    animate={{
-                      rotate: -360,
-                    }}
-                    transition={{
-                      duration: 15 + j * 5,
-                      repeat: Number.POSITIVE_INFINITY,
-                      ease: "linear",
-                      delay: j * 2,
-                    }}
-                  />
-                ))}
-              </motion.div>
+                style={{ width: 240 + i * 160, height: 240 + i * 160, willChange: "transform" }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 30 + i * 12, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+              />
             ))}
           </div>
-
-          {/* Enhanced floating gradient orbs */}
-          <motion.div
-            className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full filter blur-3xl"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(59,130,246,0.3) 0%, rgba(139,92,246,0.2) 50%, transparent 100%)",
-            }}
-            animate={{
-              scale: [1, 1.3, 1],
-              opacity: [0.3, 0.6, 0.3],
-              x: [0, 50, 0],
-              y: [0, -30, 0],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Number.POSITIVE_INFINITY,
-              repeatType: "reverse",
-            }}
-          />
-          <motion.div
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full filter blur-3xl"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(16,185,129,0.3) 0%, rgba(245,158,11,0.2) 50%, transparent 100%)",
-            }}
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3],
-              x: [0, -40, 0],
-              y: [0, 40, 0],
-            }}
-            transition={{
-              duration: 15,
-              repeat: Number.POSITIVE_INFINITY,
-              repeatType: "reverse",
-              delay: 2,
-            }}
-          />
-          <motion.div
-            className="absolute top-1/2 right-1/3 w-64 h-64 rounded-full filter blur-2xl"
-            style={{
-              background: "radial-gradient(circle, rgba(236,72,153,0.4) 0%, rgba(6,182,212,0.2) 50%, transparent 100%)",
-            }}
-            animate={{
-              scale: [1, 1.4, 1],
-              opacity: [0.2, 0.7, 0.2],
-              rotate: [0, 180, 360],
-            }}
-            transition={{
-              duration: 18,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
-            }}
-          />
+          {/* Two gradient orbs (lighter) */}
+          <motion.div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full filter blur-3xl" style={{ background: "radial-gradient(circle, rgba(59,130,246,0.28) 0%, rgba(139,92,246,0.18) 55%, transparent 100%)" }} animate={{ scale: [1, 1.25, 1], opacity: [0.35, 0.55, 0.35], x: [0, 40, 0], y: [0, -25, 0] }} transition={{ duration: 16, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" }} />
+          <motion.div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full filter blur-3xl" style={{ background: "radial-gradient(circle, rgba(16,185,129,0.28) 0%, rgba(245,158,11,0.18) 55%, transparent 100%)" }} animate={{ scale: [1, 1.18, 1], opacity: [0.3, 0.45, 0.3], x: [0, -35, 0], y: [0, 30, 0] }} transition={{ duration: 18, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse", delay: 2 }} />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
@@ -316,66 +196,11 @@ export default function SolutionsPage() {
       </section>
 
       {/* Services Overview Section */}
-      <section ref={servicesRef} className="py-24 relative overflow-hidden">
-        {/* Enhanced background */}
+      <section ref={servicesRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "760px" }}>
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-black" />
-
-        {/* Animated constellation pattern */}
-        <div className="absolute inset-0">
-          {Array.from({ length: 50 }).map((_, i) => (
-            <motion.div
-              key={`service-star-${i}`}
-              className="absolute"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-              }}
-              initial={{ opacity: 0 }}
-              animate={{
-                opacity: [0, 1, 0],
-                scale: [0.5, 1.5, 0.5],
-              }}
-              transition={{
-                duration: Math.random() * 8 + 4,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 5,
-              }}
-            >
-              <div
-                className="w-1 h-1 rounded-full"
-                style={{
-                  background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][Math.floor(Math.random() * 4)],
-                  boxShadow: `0 0 ${Math.random() * 8 + 4}px currentColor`,
-                }}
-              />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Floating geometric shapes */}
-        <motion.div
-          className="absolute top-20 left-10 w-32 h-32 border border-blue-500/20 rounded-full"
-          animate={{
-            rotate: 360,
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            rotate: { duration: 25, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-            scale: { duration: 8, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
-          }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-24 h-24 border border-purple-500/20"
-          style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}
-          animate={{
-            rotate: -360,
-            y: [0, -20, 0],
-          }}
-          transition={{
-            rotate: { duration: 30, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-            y: { duration: 6, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
-          }}
-        />
+        <CanvasStarfield className="absolute inset-0" count={90} opacity={0.7} maxFPS={30} quality="balanced" />
+        <motion.div className="absolute top-20 left-10 w-28 h-28 border border-blue-500/15 rounded-full" animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Number.POSITIVE_INFINITY, ease: "linear" }} />
+        <motion.div className="absolute bottom-16 right-8 w-16 h-16 border border-purple-500/15 rounded-lg" animate={{ rotate: -360, y: [0, -18, 0] }} transition={{ rotate: { duration: 70, repeat: Number.POSITIVE_INFINITY, ease: "linear" }, y: { duration: 14, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" } }} />
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -452,55 +277,9 @@ export default function SolutionsPage() {
       </section>
 
       {/* IT Consulting Section */}
-      <section id="it-consulting" ref={itConsultingRef} className="py-24 relative overflow-hidden">
-        {/* Enhanced cosmic background */}
+      <section id="it-consulting" ref={itConsultingRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "820px" }}>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-blue-900/5" />
-
-        {/* Spiral galaxy effect */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <motion.div
-              key={`it-spiral-${i}`}
-              className="absolute"
-              style={{
-                width: 250 + i * 80,
-                height: 250 + i * 80,
-              }}
-              animate={{
-                rotate: 360,
-              }}
-              transition={{
-                duration: 30 + i * 8,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "linear",
-              }}
-            >
-              {Array.from({ length: 8 }).map((_, j) => (
-                <motion.div
-                  key={`it-spiral-particle-${i}-${j}`}
-                  className="absolute w-1 h-1 rounded-full"
-                  style={{
-                    background: "#3B82F6",
-                    top: "50%",
-                    left: "50%",
-                    transformOrigin: `${125 + i * 40}px 0`,
-                    transform: `rotate(${j * 45}deg)`,
-                    boxShadow: `0 0 4px #3B82F6`,
-                  }}
-                  animate={{
-                    opacity: [0, 1, 0],
-                    scale: [0.5, 1, 0.5],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Number.POSITIVE_INFINITY,
-                    delay: j * 0.2,
-                  }}
-                />
-              ))}
-            </motion.div>
-          ))}
-        </div>
+        <CanvasStarfield className="absolute inset-0" count={70} opacity={0.65} maxFPS={28} quality="balanced" />
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -631,34 +410,9 @@ export default function SolutionsPage() {
       </section>
 
       {/* HR Consulting Section */}
-      <section id="hr-services" ref={hrConsultingRef} className="py-24 relative overflow-hidden">
-        {/* Enhanced cosmic background */}
+      <section id="hr-services" ref={hrConsultingRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "820px" }}>
         <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 to-purple-900/5" />
-
-        {/* Network constellation */}
-        <div className="absolute inset-0">
-          {Array.from({ length: 30 }).map((_, i) => (
-            <motion.div
-              key={`hr-node-${i}`}
-              className="absolute w-2 h-2 rounded-full"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                background: "#8B5CF6",
-                boxShadow: `0 0 10px #8B5CF6`,
-              }}
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.5, 1, 0.5],
-              }}
-              transition={{
-                duration: Math.random() * 4 + 2,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 3,
-              }}
-            />
-          ))}
-        </div>
+        <CanvasStarfield className="absolute inset-0" count={60} opacity={0.7} speedX={{ min: 0.05, max: 0.15 }} speedY={{ min: -0.02, max: 0.02 }} size={{ min: 0.8, max: 1.6 }} maxFPS={26} quality="battery" />
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -789,31 +543,12 @@ export default function SolutionsPage() {
       </section>
 
       {/* Recruitment & Manpower Section */}
-      <section id="recruitment" ref={recruitmentRef} className="py-24 relative overflow-hidden">
-        {/* Enhanced cosmic background */}
+      <section id="recruitment" ref={recruitmentRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "820px" }}>
         <div className="absolute inset-0 bg-gradient-to-r from-green-900/20 to-green-900/5" />
-
-        {/* Floating hexagons */}
-        {Array.from({ length: 6 }).map((_, i) => (
-          <motion.div
-            key={`recruitment-hexagon-${i}`}
-            className="absolute border border-green-500/20"
-            style={{
-              width: 60 + i * 20,
-              height: 60 + i * 20,
-              clipPath: "polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)",
-              top: `${20 + i * 15}%`,
-              left: `${10 + i * 15}%`,
-            }}
-            animate={{
-              rotate: 360,
-              y: [0, -30, 0],
-            }}
-            transition={{
-              rotate: { duration: 20 + i * 5, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-              y: { duration: 8 + i * 2, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
-            }}
-          />
+        <CanvasStarfield className="absolute inset-0" count={60} opacity={0.7} maxFPS={28} quality="balanced" />
+        {/* Two slow decorative hexagons */}
+        {Array.from({ length: 2 }).map((_, i) => (
+          <motion.div key={`rec-hex-${i}`} className="absolute border border-green-500/25" style={{ width: 140 + i * 90, height: 140 + i * 90, clipPath: "polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)", top: i === 0 ? "18%" : "55%", left: i === 0 ? "12%" : "65%", willChange: "transform" }} animate={{ rotate: 360 }} transition={{ duration: 80 + i * 40, repeat: Number.POSITIVE_INFINITY, ease: "linear" }} />
         ))}
 
         <div className="container mx-auto px-4 relative z-10">
@@ -945,36 +680,9 @@ export default function SolutionsPage() {
       </section>
 
       {/* Personality Development Section */}
-      <section id="staffing" ref={pdpRef} className="py-24 relative overflow-hidden">
-        {/* Enhanced cosmic background */}
+      <section id="staffing" ref={pdpRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "820px" }}>
         <div className="absolute inset-0 bg-gradient-to-r from-amber-900/20 to-amber-900/5" />
-
-        {/* Shooting stars */}
-        <div className="absolute inset-0">
-          {Array.from({ length: 15 }).map((_, i) => (
-            <motion.div
-              key={`pdp-shooting-star-${i}`}
-              className="absolute h-0.5 rounded-full"
-              style={{
-                width: Math.random() * 100 + 50,
-                background: `linear-gradient(90deg, #F59E0B, transparent)`,
-                top: `${Math.random() * 100}%`,
-                left: "-100px",
-                boxShadow: `0 0 10px #F59E0B`,
-              }}
-              animate={{
-                x: ["0px", "100vw"],
-                opacity: [0, 1, 0],
-              }}
-              transition={{
-                duration: Math.random() * 3 + 2,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 8,
-                ease: "linear",
-              }}
-            />
-          ))}
-        </div>
+        <CanvasStarfield className="absolute inset-0" count={55} opacity={0.6} speedX={{ min: 0.05, max: 0.25 }} speedY={{ min: -0.01, max: 0.01 }} size={{ min: 0.8, max: 1.8 }} maxFPS={26} quality="battery" />
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -1105,34 +813,14 @@ export default function SolutionsPage() {
       </section>
 
       {/* CTA Section */}
-      <section ref={ctaRef} className="py-24 relative overflow-hidden">
-        {/* Enhanced CTA background */}
+      <section ref={ctaRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "760px" }}>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-purple-900/20" />
-
-        {/* Pulsing energy rings */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <motion.div
-              key={`cta-energy-ring-${i}`}
-              className="absolute border rounded-full"
-              style={{
-                width: 200 + i * 150,
-                height: 200 + i * 150,
-                borderColor: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][i],
-                borderWidth: "1px",
-                opacity: 0.3,
-              }}
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.6, 0.3],
-              }}
-              transition={{
-                duration: 4 + i * 2,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: i * 0.5,
-              }}
-            />
+        <CanvasStarfield className="absolute inset-0" count={80} opacity={0.55} speedX={{ min: 0.05, max: 0.25 }} speedY={{ min: -0.01, max: 0.01 }} size={{ min: 0.8, max: 1.8 }} maxFPS={28} quality="balanced" />
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <motion.div key={`cta-ring-${i}`} className="absolute border rounded-full" style={{ width: 260 + i * 180, height: 260 + i * 180, borderColor: ["#3B82F6", "#8B5CF6", "#10B981"][i % 3] + "33" }} animate={{ rotate: i % 2 === 0 ? 360 : -360, opacity: [0.25, 0.45, 0.25], scale: [1, 1.08, 1] }} transition={{ duration: 60 + i * 15, repeat: Number.POSITIVE_INFINITY, ease: "linear" }} />
           ))}
+          <motion.div className="absolute w-72 h-72 rounded-full filter blur-3xl" style={{ background: "radial-gradient(circle at 30% 30%, rgba(59,130,246,0.35), rgba(139,92,246,0.18) 55%, transparent 75%)" }} animate={{ scale: [1, 1.25, 1], opacity: [0.25, 0.5, 0.25], rotate: [0, 45, 0] }} transition={{ duration: 35, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }} />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">

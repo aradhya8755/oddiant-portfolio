@@ -1,17 +1,30 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { motion, useInView } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import Testimonials from "@/components/Testimonials"
 // import ClientsPlanetary from "@/components/ClientsPlanetary"
-import WhyChooseUs from "@/components/why-choose-us"
-import WhatMakesUsDifferent from "@/components/what-makes-us"
 import { ArrowRight, CheckCircle, Target, Compass, Award, Users, Building } from "lucide-react"
+import CanvasStarfield from "@/components/visuals/CanvasStarfield"
+
+// Lazy-load heavier sections to reduce initial work and hydrate on view
+const Testimonials = dynamic(() => import("@/components/Testimonials"), {
+  ssr: false,
+  loading: () => <div style={{ minHeight: 460 }} />,
+})
+const WhyChooseUs = dynamic(() => import("@/components/why-choose-us"), {
+  ssr: false,
+  loading: () => <div style={{ minHeight: 600 }} />,
+})
+const WhatMakesUsDifferent = dynamic(() => import("@/components/what-makes-us"), {
+  ssr: false,
+  loading: () => <div style={{ minHeight: 600 }} />,
+})
 
 export default function CompanyPage() {
   const heroRef = useRef<HTMLDivElement>(null)
@@ -52,49 +65,22 @@ export default function CompanyPage() {
     },
   }
 
+  // Note: background visuals are rendered via a lightweight canvas to minimize DOM/motion cost
+
   return (
     <div className="bg-black text-white overflow-hidden">
       {/* Hero Section */}
-      <section ref={heroRef} className="relative pt-32 pb-20 overflow-hidden">
+  <section ref={heroRef} className="relative pt-32 pb-20 overflow-hidden" style={{ contain: "layout paint style", contentVisibility: "auto", containIntrinsicSize: "720px" }}>
         {/* Enhanced Cosmic Background */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0" style={{ pointerEvents: "none" }}>
           {/* Base gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-black via-zinc-900 to-black" />
 
-          {/* Animated starfield */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-            {Array.from({ length: 80 }).map((_, i) => (
-              <motion.div
-                key={`hero-star-${i}`}
-                className="absolute rounded-full"
-                style={{
-                  width: Math.random() * 3 + 1,
-                  height: Math.random() * 3 + 1,
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899"][
-                    Math.floor(Math.random() * 6)
-                  ],
-                  boxShadow: `0 0 ${Math.random() * 8 + 4}px currentColor`,
-                }}
-                animate={{
-                  y: [0, Math.random() * -150 - 50],
-                  x: [0, Math.random() * 50 - 25],
-                  opacity: [0, 1, 0],
-                  scale: [0, 1, 0],
-                }}
-                transition={{
-                  duration: Math.random() * 12 + 8,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                  delay: Math.random() * 5,
-                }}
-              />
-            ))}
-          </div>
+          {/* Animated starfield (canvas, GPU-friendly) */}
+          <CanvasStarfield className="absolute inset-0" count={140} opacity={0.85} maxFPS={28} quality="balanced" />
 
           {/* Orbital rings */}
-          <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center" style={{ willChange: "transform" }}>
             {Array.from({ length: 4 }).map((_, i) => (
               <motion.div
                 key={`hero-orbit-${i}`}
@@ -102,6 +88,7 @@ export default function CompanyPage() {
                 style={{
                   width: 200 + i * 120,
                   height: 200 + i * 120,
+          willChange: "transform",
                 }}
                 animate={{
                   rotate: 360,
@@ -121,7 +108,8 @@ export default function CompanyPage() {
                       top: "50%",
                       left: "50%",
                       transformOrigin: `${100 + i * 60}px 0`,
-                      boxShadow: `0 0 8px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][i]}`,
+            boxShadow: `0 0 8px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][i]}`,
+            willChange: "transform",
                     }}
                     animate={{
                       rotate: -360,
@@ -144,6 +132,7 @@ export default function CompanyPage() {
             style={{
               background:
                 "radial-gradient(circle, rgba(59,130,246,0.3) 0%, rgba(139,92,246,0.2) 50%, transparent 100%)",
+              willChange: "transform, opacity",
             }}
             animate={{
               scale: [1, 1.3, 1],
@@ -162,6 +151,7 @@ export default function CompanyPage() {
             style={{
               background:
                 "radial-gradient(circle, rgba(16,185,129,0.3) 0%, rgba(245,158,11,0.2) 50%, transparent 100%)",
+              willChange: "transform, opacity",
             }}
             animate={{
               scale: [1, 1.2, 1],
@@ -196,37 +186,12 @@ export default function CompanyPage() {
       </section>
 
       {/* About Us Section */}
-      <section ref={aboutRef} className="py-20 relative overflow-hidden">
+  <section ref={aboutRef} className="py-20 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "800px" }}>
         {/* Enhanced background */}
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-black" />
 
-        {/* Floating particles */}
-        <div className="absolute inset-0">
-          {Array.from({ length: 40 }).map((_, i) => (
-            <motion.div
-              key={`about-particle-${i}`}
-              className="absolute rounded-full"
-              style={{
-                width: Math.random() * 2 + 1,
-                height: Math.random() * 2 + 1,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][Math.floor(Math.random() * 4)],
-                boxShadow: `0 0 ${Math.random() * 6 + 3}px currentColor`,
-              }}
-              animate={{
-                y: [0, Math.random() * -80 - 20],
-                opacity: [0, 0.8, 0],
-                scale: [0, 1, 0],
-              }}
-              transition={{
-                duration: Math.random() * 8 + 6,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 5,
-              }}
-            />
-          ))}
-        </div>
+  {/* Floating particles (canvas) */}
+  <CanvasStarfield className="absolute inset-0" count={90} opacity={0.7} maxFPS={30} quality="balanced" />
 
         {/* Geometric shapes */}
         <motion.div
@@ -332,12 +297,12 @@ export default function CompanyPage() {
       </section>
 
       {/* Vision & Mission Section */}
-      <section ref={visionRef} className="py-24 relative overflow-hidden">
+  <section ref={visionRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "900px" }}>
         {/* Enhanced cosmic background */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-purple-900/20" />
 
         {/* Spiral galaxy effect */}
-        <div className="absolute inset-0 flex items-center justify-center">
+  <div className="absolute inset-0 flex items-center justify-center" style={{ willChange: "transform", pointerEvents: "none" }}>
           {Array.from({ length: 6 }).map((_, i) => (
             <motion.div
               key={`vision-spiral-${i}`}
@@ -345,6 +310,7 @@ export default function CompanyPage() {
               style={{
                 width: 250 + i * 80,
                 height: 250 + i * 80,
+    willChange: "transform",
               }}
               animate={{
                 rotate: 360,
@@ -365,7 +331,8 @@ export default function CompanyPage() {
                     left: "50%",
                     transformOrigin: `${125 + i * 40}px 0`,
                     transform: `rotate(${j * 45}deg)`,
-                    boxShadow: `0 0 4px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899"][i]}`,
+        boxShadow: `0 0 4px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899"][i]}`,
+        willChange: "transform, opacity",
                   }}
                   animate={{
                     opacity: [0, 1, 0],
@@ -602,46 +569,20 @@ export default function CompanyPage() {
       </section> */}
 
       {/* Testimonials section */}
-      <section>
+      <section style={{ contentVisibility: "auto", containIntrinsicSize: "480px" }}>
         <Testimonials />
       </section>
 
       {/* Certifications Section */}
-      <section ref={certRef} className="py-24 relative overflow-hidden">
+  <section ref={certRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "800px" }}>
         {/* Enhanced background */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-purple-900/20" />
 
-        {/* Shooting stars */}
-        <div className="absolute inset-0">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <motion.div
-              key={`cert-shooting-star-${i}`}
-              className="absolute h-0.5 rounded-full"
-              style={{
-                width: Math.random() * 80 + 40,
-                background: `linear-gradient(90deg, ${
-                  ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][Math.floor(Math.random() * 5)]
-                }, transparent)`,
-                top: `${Math.random() * 100}%`,
-                left: "-100px",
-                boxShadow: `0 0 8px currentColor`,
-              }}
-              animate={{
-                x: ["0px", "100vw"],
-                opacity: [0, 1, 0],
-              }}
-              transition={{
-                duration: Math.random() * 2 + 1.5,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 6,
-                ease: "linear",
-              }}
-            />
-          ))}
-        </div>
+  {/* Shooting stars (canvas) */}
+  <CanvasStarfield className="absolute inset-0" count={60} opacity={0.75} speedX={{ min: 0.12, max: 0.28 }} speedY={{ min: -0.02, max: 0.02 }} size={{ min: 0.6, max: 1.6 }} maxFPS={26} quality="battery" />
 
         {/* Pulsing energy rings */}
-        <div className="absolute inset-0 flex items-center justify-center">
+  <div className="absolute inset-0 flex items-center justify-center" style={{ willChange: "transform" }}>
           {Array.from({ length: 3 }).map((_, i) => (
             <motion.div
               key={`cert-energy-ring-${i}`}
@@ -652,6 +593,7 @@ export default function CompanyPage() {
                 borderColor: ["#3B82F6", "#8B5CF6", "#10B981"][i],
                 borderWidth: "1px",
                 opacity: 0.2,
+    willChange: "transform, opacity",
               }}
               animate={{
                 scale: [1, 1.2, 1],
@@ -711,7 +653,7 @@ export default function CompanyPage() {
               },
               {
                 name: "Invertis Incubation",
-                logo: "/images/logos/incub-logo.png",
+                logo: "/images/logos/invertis-incubation.png",
                 description: "Startup Certified with Invertis Incubation",
               },
               {
@@ -721,7 +663,7 @@ export default function CompanyPage() {
               },
               {
                 name: "START IN UP",
-                logo: "/images/logos/upstart_logo.png",
+                logo: "/images/logos/start-in-up.png",
                 description: "Certified Startup with UP Government",
               },
             ].map((cert, idx) => (

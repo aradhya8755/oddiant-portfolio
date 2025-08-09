@@ -1,10 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronDown, ChevronUp, HelpCircle } from "lucide-react"
+import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react'
+import { useClientRandom } from "@/hooks/use-client-random"
 
 // Define the FAQ item type
 interface FAQItem {
@@ -44,6 +44,48 @@ const faqs: FAQItem[] = [
       "You can reach out through our contact form or schedule a free consultation. We'll guide you through the process step-by-step, understanding your requirements and proposing the most suitable solutions for your business.",
   },
 ]
+
+// Moved FAQSectionBackground back inside FAQSection and made it a local component
+const FAQSectionBackground: React.FC = () => {
+  const faqParticles = useClientRandom(() => ({
+    width: Math.random() * 2 + 1,
+    height: Math.random() * 2 + 1,
+    top: `${Math.random() * 100}%`,
+    left: `${Math.random() * 100}%`,
+    background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EC4899"][Math.floor(Math.random() * 5)],
+    boxShadow: `0 0 ${Math.random() * 4 + 2}px currentColor`,
+    duration: Math.random() * 3 + 2,
+    delay: Math.random() * 5,
+  }), 15); // Reduced from 20 to 15
+
+  return (
+    <>
+      {faqParticles.map((particle, i) => (
+        <motion.div
+          key={`faq-particle-${i}`}
+          className="absolute rounded-full"
+          style={{
+            width: particle.width,
+            height: particle.height,
+            top: particle.top,
+            left: particle.left,
+            background: particle.background,
+            boxShadow: particle.boxShadow,
+          }}
+          animate={{
+            opacity: [0, 0.8, 0],
+            scale: [0, 1, 0],
+          }}
+          transition={{
+            duration: particle.duration,
+            repeat: Number.POSITIVE_INFINITY,
+            delay: particle.delay,
+          }}
+        />
+      ))}
+    </>
+  );
+};
 
 const FAQSection: React.FC<FAQSectionProps> = ({ className = "" }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
@@ -90,32 +132,8 @@ const FAQSection: React.FC<FAQSectionProps> = ({ className = "" }) => {
             delay: 2,
           }}
         />
-
-        {/* Animated stars */}
-        {Array.from({ length: 20 }).map((_, i) => (
-          <motion.div
-            key={`faq-star-${i}`}
-            className="absolute rounded-full"
-            style={{
-              width: Math.random() * 2 + 1,
-              height: Math.random() * 2 + 1,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EC4899"][Math.floor(Math.random() * 5)],
-              boxShadow: `0 0 ${Math.random() * 4 + 2}px currentColor`,
-            }}
-            animate={{
-              opacity: [0, 0.8, 0],
-              scale: [0, 1, 0],
-            }}
-            transition={{
-              duration: Math.random() * 3 + 2,
-              repeat: Number.POSITIVE_INFINITY,
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-
+        {/* Animated stars are now in a separate component */}
+        <FAQSectionBackground /> {/* Render the background particles here */}
         {/* Subtle grid pattern */}
         <div
           className="absolute inset-0 opacity-10"
@@ -126,7 +144,6 @@ const FAQSection: React.FC<FAQSectionProps> = ({ className = "" }) => {
           }}
         />
       </div>
-
       <div className="text-center mb-16 relative z-10">
         <div className="inline-block mb-3">
           <div className="flex items-center justify-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full">
@@ -141,7 +158,6 @@ const FAQSection: React.FC<FAQSectionProps> = ({ className = "" }) => {
           Find answers to common questions about our services and approach
         </p>
       </div>
-
       <div className="space-y-6 relative z-10">
         {faqs.map((faq, index) => (
           <motion.div

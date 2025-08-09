@@ -4,6 +4,8 @@ import { useRef } from "react"
 import { motion, useInView } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { CheckCircle, Award, Clock, Users, Shield, Headphones, Sparkles } from "lucide-react"
+import { useClientRandom } from "@/hooks/use-client-random"
+import { useEffect, useState } from "react"
 
 export default function WhyChooseUs() {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -80,39 +82,59 @@ export default function WhyChooseUs() {
     pink: "from-pink-500/20 to-pink-700/20 shadow-pink-500/20 border-pink-500/20",
   }
 
+  // Client-only random visuals
+  const starfield = useClientRandom(
+    () => ({
+      width: Math.random() * 3 + 1,
+      height: Math.random() * 3 + 1,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#06B6D4"][Math.floor(Math.random() * 7)],
+      boxShadow: `0 0 ${Math.random() * 8 + 4}px currentColor`,
+      yAnim: [0, Math.random() * -100 - 50] as [number, number],
+      xAnim: [0, Math.random() * 50 - 25] as [number, number],
+      duration: Math.random() * 10 + 8,
+      delay: Math.random() * 5,
+    }),
+    60
+  )
+
+  const networkNodes = useClientRandom(
+    () => ({
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][Math.floor(Math.random() * 5)],
+      duration: Math.random() * 3 + 2,
+      delay: Math.random() * 3,
+    }),
+    20
+  )
+
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
   return (
-    <section ref={sectionRef} className="py-24 relative overflow-hidden">
+  <section ref={sectionRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "900px" }}>
       {/* Enhanced cosmic background */}
       <div className="absolute inset-0 bg-gradient-to-b from-black to-zinc-900" />
 
       {/* Animated starfield */}
-      <div className="absolute inset-0">
-        {Array.from({ length: 60 }).map((_, i) => (
+      <div className="absolute inset-0" style={{ pointerEvents: "none", willChange: "transform, opacity" }}>
+        {mounted && starfield.map((s, i) => (
           <motion.div
             key={`why-star-${i}`}
             className="absolute rounded-full"
             style={{
-              width: Math.random() * 3 + 1,
-              height: Math.random() * 3 + 1,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#06B6D4"][
-                Math.floor(Math.random() * 7)
-              ],
-              boxShadow: `0 0 ${Math.random() * 8 + 4}px currentColor`,
+              width: s.width,
+              height: s.height,
+              top: s.top,
+              left: s.left,
+              background: s.background,
+              boxShadow: s.boxShadow,
+              willChange: "transform, opacity",
             }}
-            animate={{
-              y: [0, Math.random() * -100 - 50],
-              x: [0, Math.random() * 50 - 25],
-              opacity: [0, 1, 0],
-              scale: [0, 1, 0],
-            }}
-            transition={{
-              duration: Math.random() * 10 + 8,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
-              delay: Math.random() * 5,
-            }}
+            animate={{ y: s.yAnim, x: s.xAnim, opacity: [0, 1, 0], scale: [0, 1, 0] }}
+            transition={{ duration: s.duration, repeat: Number.POSITIVE_INFINITY, ease: "linear", delay: s.delay }}
           />
         ))}
       </div>
@@ -224,26 +246,14 @@ export default function WhyChooseUs() {
       />
 
       {/* Network constellation */}
-      <div className="absolute inset-0">
-        {Array.from({ length: 20 }).map((_, i) => (
+      <div className="absolute inset-0" style={{ pointerEvents: "none", willChange: "transform, opacity" }}>
+        {mounted && networkNodes.map((n, i) => (
           <motion.div
             key={`why-node-${i}`}
             className="absolute w-1 h-1 rounded-full"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][Math.floor(Math.random() * 5)],
-              boxShadow: `0 0 6px currentColor`,
-            }}
-            animate={{
-              scale: [1, 1.5, 1],
-              opacity: [0.5, 1, 0.5],
-            }}
-            transition={{
-              duration: Math.random() * 3 + 2,
-              repeat: Number.POSITIVE_INFINITY,
-              delay: Math.random() * 3,
-            }}
+            style={{ top: n.top, left: n.left, background: n.background, boxShadow: `0 0 6px currentColor` }}
+            animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: n.duration, repeat: Number.POSITIVE_INFINITY, delay: n.delay }}
           />
         ))}
       </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import Typed from "typed.js"
 
 interface TypedTextProps {
@@ -26,6 +26,9 @@ export default function TypedText({
 }: TypedTextProps) {
   const el = useRef<HTMLSpanElement>(null)
   const typed = useRef<Typed | null>(null)
+  // Create a stable key based on content rather than array identity to avoid unnecessary re-inits
+  const stringsKey = useMemo(() => JSON.stringify(strings), [strings])
+  const processedStrings = useMemo(() => strings.map((str) => str.replace(/&/g, "&amp;")), [strings])
 
   useEffect(() => {
     if (!el.current) return
@@ -34,9 +37,6 @@ export default function TypedText({
     if (typed.current) {
       typed.current.destroy()
     }
-
-    // Process strings to ensure special characters are handled properly
-    const processedStrings = strings.map((str) => str.replace(/&/g, "&amp;"))
 
     // Create new Typed instance with optimized settings
     typed.current = new Typed(el.current, {
@@ -57,7 +57,7 @@ export default function TypedText({
       fadeOutDelay: 0,
       shuffle: false,
       bindInputFocusEvents: false,
-      stringsElement: undefined, 
+      stringsElement: undefined,
     })
 
     return () => {
@@ -65,7 +65,8 @@ export default function TypedText({
         typed.current.destroy()
       }
     }
-  }, [strings, typeSpeed, backSpeed, backDelay, loop, showCursor, cursorChar])
+  // Depend on stringsKey instead of the array reference; keep primitive props
+  }, [processedStrings, typeSpeed, backSpeed, backDelay, loop, showCursor, cursorChar])
 
   return <span ref={el} className={className}></span>
 }

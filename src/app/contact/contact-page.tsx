@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useRef } from "react"
-import { motion, useInView } from "framer-motion"
+import { motion, useInView, useReducedMotion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -33,6 +33,7 @@ import {
 } from "lucide-react"
 import { FaXTwitter } from "react-icons/fa6"
 import { FaWhatsapp } from "react-icons/fa"
+import CanvasStarfield from "@/components/visuals/CanvasStarfield"
 
 // Define more specific types to fix the TypeScript error
 interface ContactDetailWithLink {
@@ -60,6 +61,7 @@ interface ContactInfo {
 }
 
 export default function ContactPage() {
+  const prefersReducedMotion = useReducedMotion()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -77,13 +79,23 @@ export default function ContactPage() {
   } | null>(null)
 
   const heroRef = useRef<HTMLDivElement>(null)
-  const isHeroInView = useInView(heroRef, { once: true, amount: 0.2 })
+  const isHeroInView = useInView(heroRef, { once: true, amount: 0.25 })
 
   const formRef = useRef<HTMLDivElement>(null)
-  const isFormInView = useInView(formRef, { once: true, amount: 0.2 })
+  const isFormInView = useInView(formRef, { once: true, amount: 0.3 })
 
   const infoRef = useRef<HTMLDivElement>(null)
-  const isInfoInView = useInView(infoRef, { once: true, amount: 0.2 })
+  const isInfoInView = useInView(infoRef, { once: true, amount: 0.25 })
+
+  // New: map visibility for lazy loading iframe
+  const mapRef = useRef<HTMLDivElement>(null)
+  const isMapInView = useInView(mapRef, { once: true, amount: 0.2 })
+
+  // New: gated counts to avoid initial heavy animation cost before in view
+  const heroOrbitCount = isHeroInView ? (prefersReducedMotion ? 3 : 6) : 0
+  const heroParticlesBase = prefersReducedMotion ? 2 : 4
+  const spiralLayerCount = isFormInView ? (prefersReducedMotion ? 4 : 8) : 0
+  const spiralParticlesPerLayer = prefersReducedMotion ? 8 : 12
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -247,18 +259,18 @@ ${formData.message}
       setTimeout(() => {
         setFormStatus((prev) => (prev ? { ...prev, visible: false } : null))
       }, 5000)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error submitting form:", error)
 
       // More specific error messages
-      if (error.name === "AbortError") {
+      if ((error as { name?: string })?.name === "AbortError") {
         setFormStatus({
           success: false,
           message: "Request timed out. Please check your connection and try again.",
           visible: true,
         })
         toast.error("Request timed out. Please check your connection and try again.")
-      } else if (error instanceof TypeError && error.message.includes("fetch")) {
+      } else if (error instanceof TypeError && (error as TypeError).message.includes("fetch")) {
         setFormStatus({
           success: false,
           message: "Network error. Please check your connection and try again.",
@@ -373,47 +385,22 @@ ${formData.message}
   return (
     <div className="bg-black text-white overflow-hidden">
       {/* Hero Section */}
-      <section ref={heroRef} className="relative pt-32 pb-20 overflow-hidden">
+      <section
+        ref={heroRef}
+        className="relative pt-32 pb-20 overflow-hidden"
+        style={{ contentVisibility: "auto", containIntrinsicSize: "720px" }}
+      >
         {/* Enhanced Cosmic Background */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0" style={{ pointerEvents: "none" }}>
           {/* Base gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-black via-zinc-900 to-black" />
 
-          {/* Massive animated starfield */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-            {Array.from({ length: 120 }).map((_, i) => (
-              <motion.div
-                key={`hero-star-${i}`}
-                className="absolute rounded-full"
-                style={{
-                  width: Math.random() * 3 + 1,
-                  height: Math.random() * 3 + 1,
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#06B6D4", "#84CC16"][
-                    Math.floor(Math.random() * 8)
-                  ],
-                  boxShadow: `0 0 ${Math.random() * 12 + 6}px currentColor`,
-                }}
-                animate={{
-                  y: [0, Math.random() * -250 - 100],
-                  x: [0, Math.random() * 100 - 50],
-                  opacity: [0, 1, 0],
-                  scale: [0, 1, 0],
-                }}
-                transition={{
-                  duration: Math.random() * 18 + 12,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                  delay: Math.random() * 5,
-                }}
-              />
-            ))}
-          </div>
+          {/* GPU-friendly starfield (SSR-safe) */}
+          <CanvasStarfield className="absolute inset-0" count={120} opacity={0.85} maxFPS={28} quality="balanced" />
 
           {/* Enhanced orbital rings */}
           <div className="absolute inset-0 flex items-center justify-center">
-            {Array.from({ length: 6 }).map((_, i) => (
+            {Array.from({ length: heroOrbitCount }).map((_, i) => (
               <motion.div
                 key={`hero-orbit-${i}`}
                 className="absolute border border-white/8 rounded-full"
@@ -421,17 +408,15 @@ ${formData.message}
                   width: 200 + i * 180,
                   height: 200 + i * 180,
                 }}
-                animate={{
-                  rotate: 360,
-                }}
+                animate={isHeroInView ? { rotate: 360 } : { rotate: 0 }}
                 transition={{
-                  duration: 25 + i * 15,
+                  duration: (prefersReducedMotion ? 35 : 25) + i * (prefersReducedMotion ? 20 : 15),
                   repeat: Number.POSITIVE_INFINITY,
                   ease: "linear",
                 }}
               >
                 {/* Enhanced orbital particles */}
-                {Array.from({ length: 4 + i }).map((_, j) => (
+                {Array.from({ length: heroParticlesBase + i }).map((_, j) => (
                   <motion.div
                     key={`hero-orbital-particle-${i}-${j}`}
                     className="absolute w-2 h-2 rounded-full"
@@ -444,11 +429,9 @@ ${formData.message}
                       transformOrigin: `${100 + i * 90}px 0`,
                       boxShadow: `0 0 12px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899"][i]}`,
                     }}
-                    animate={{
-                      rotate: -360,
-                    }}
+                    animate={isHeroInView ? { rotate: -360 } : { rotate: 0 }}
                     transition={{
-                      duration: 18 + j * 6,
+                      duration: (prefersReducedMotion ? 24 : 18) + j * (prefersReducedMotion ? 8 : 6),
                       repeat: Number.POSITIVE_INFINITY,
                       ease: "linear",
                       delay: j * 3,
@@ -514,35 +497,16 @@ ${formData.message}
             }}
           />
 
-          {/* Floating cosmic particles */}
-          <div className="absolute inset-0">
-            {Array.from({ length: 40 }).map((_, i) => (
-              <motion.div
-                key={`cosmic-particle-${i}`}
-                className="absolute rounded-full"
-                style={{
-                  width: Math.random() * 4 + 2,
-                  height: Math.random() * 4 + 2,
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EC4899"][Math.floor(Math.random() * 5)],
-                  boxShadow: `0 0 ${Math.random() * 10 + 5}px currentColor`,
-                }}
-                animate={{
-                  y: [0, Math.random() * -150 - 50],
-                  x: [0, Math.random() * 100 - 50],
-                  opacity: [0, 0.8, 0],
-                  scale: [0, 1.5, 0],
-                }}
-                transition={{
-                  duration: Math.random() * 12 + 8,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeOut",
-                  delay: Math.random() * 6,
-                }}
-              />
-            ))}
-          </div>
+          {/* Secondary subtle starfield for depth */}
+          <CanvasStarfield
+            className="absolute inset-0"
+            count={isHeroInView ? 55 : 0}
+            opacity={0.55}
+            maxFPS={26}
+            quality="battery"
+            speedX={{ min: -0.03, max: 0.03 }}
+            speedY={{ min: -0.08, max: -0.03 }}
+          />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
@@ -574,13 +538,16 @@ ${formData.message}
       </section>
 
       {/* Contact Form and Info Section */}
-      <section className="py-16 relative overflow-hidden">
+      <section
+        className="py-16 relative overflow-hidden"
+        style={{ contentVisibility: "auto", containIntrinsicSize: "1200px" }}
+      >
         {/* Enhanced cosmic background */}
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-black" />
 
         {/* Spiral galaxy effect */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {Array.from({ length: 8 }).map((_, i) => (
+        <div className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: "none" }}>
+          {Array.from({ length: spiralLayerCount }).map((_, i) => (
             <motion.div
               key={`contact-spiral-${i}`}
               className="absolute"
@@ -588,16 +555,14 @@ ${formData.message}
                 width: 300 + i * 120,
                 height: 300 + i * 120,
               }}
-              animate={{
-                rotate: 360,
-              }}
+              animate={isFormInView ? { rotate: 360 } : { rotate: 0 }}
               transition={{
-                duration: 35 + i * 12,
+                duration: (prefersReducedMotion ? 45 : 35) + i * (prefersReducedMotion ? 16 : 12),
                 repeat: Number.POSITIVE_INFINITY,
                 ease: "linear",
               }}
             >
-              {Array.from({ length: 12 }).map((_, j) => (
+              {Array.from({ length: spiralParticlesPerLayer }).map((_, j) => (
                 <motion.div
                   key={`contact-spiral-particle-${i}-${j}`}
                   className="absolute w-1.5 h-1.5 rounded-full"
@@ -619,11 +584,11 @@ ${formData.message}
                     boxShadow: `0 0 8px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#06B6D4", "#84CC16"][i]}`,
                   }}
                   animate={{
-                    opacity: [0, 1, 0],
-                    scale: [0.5, 1.2, 0.5],
+                    opacity: isFormInView ? [0, 1, 0] : [0],
+                    scale: isFormInView ? [0.5, 1.2, 0.5] : [0.5],
                   }}
                   transition={{
-                    duration: 5,
+                    duration: prefersReducedMotion ? 6.5 : 5,
                     repeat: Number.POSITIVE_INFINITY,
                     delay: j * 0.4,
                   }}
@@ -713,26 +678,17 @@ ${formData.message}
                   }}
                 />
 
-                {/* Subtle floating dots */}
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <motion.div
-                    key={`form-dot-${i}`}
-                    className="absolute w-1 h-1 rounded-full bg-white/20"
-                    style={{
-                      top: `${Math.random() * 100}%`,
-                      left: `${Math.random() * 100}%`,
-                    }}
-                    animate={{
-                      y: [0, -20, 0],
-                      opacity: [0.2, 0.5, 0.2],
-                    }}
-                    transition={{
-                      duration: Math.random() * 4 + 3,
-                      repeat: Number.POSITIVE_INFINITY,
-                      delay: Math.random() * 3,
-                    }}
-                  />
-                ))}
+                {/* Subtle client-only dots via canvas to avoid SSR mismatch */}
+                <CanvasStarfield
+                  className="absolute inset-0"
+                  count={24}
+                  opacity={0.4}
+                  maxFPS={28}
+                  quality="battery"
+                  speedX={{ min: -0.02, max: 0.02 }}
+                  speedY={{ min: -0.05, max: -0.02 }}
+                  size={{ min: 0.8, max: 1.6 }}
+                />
               </div>
 
               <div className="bg-white/8 backdrop-blur-xl border border-zinc-700/30 rounded-3xl p-10 shadow-2xl hover:shadow-3xl hover:shadow-blue-500/5 transition-all duration-500 relative">
@@ -1121,7 +1077,7 @@ ${formData.message}
               </div>
 
               {/* Enhanced Map */}
-              <motion.div variants={fadeInUpVariants} className="mt-12">
+              <motion.div variants={fadeInUpVariants} className="mt-12" ref={mapRef}>
                 <div className="bg-white/5 backdrop-blur-lg border border-zinc-800/50 rounded-3xl p-8 overflow-hidden shadow-2xl">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
@@ -1130,16 +1086,23 @@ ${formData.message}
                     <h3 className="text-2xl font-bold text-white">Find Us</h3>
                   </div>
                   <div className="relative h-[350px] rounded-2xl overflow-hidden">
-                    <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.0011089455!2d77.3772!3d28.6273!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5f25ac323e5%3A0x9e06f1aaca9e8e4a!2sSector%2063%2C%20Noida%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1621234567890!5m2!1sen!2sin"
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen={false}
-                      loading="lazy"
-                      title="Google Maps showing Oddiant Techlabs location"
-                      className="grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-700 rounded-2xl"
-                    ></iframe>
+                    {isMapInView ? (
+                      <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.0011089455!2d77.3772!3d28.6273!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5f25ac323e5%3A0x9e06f1aaca9e8e4a!2sSector%2063%2C%20Noida%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1621234567890!5m2!1sen!2sin"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen={false}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        title="Google Maps showing Oddiant Techlabs location"
+                        className="grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-700 rounded-2xl"
+                      ></iframe>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/40 animate-pulse text-sm text-gray-400">
+                        Loading map...
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -1153,47 +1116,62 @@ ${formData.message}
                   <h3 className="text-xl font-bold text-white">Connect With Us</h3>
                 </div>
                 <div className="flex space-x-4">
-                  {[
+                  {([
                     {
                       icon: <Linkedin className="w-5 h-5" />,
                       href: "https://linkedin.com",
                       label: "LinkedIn",
-                      hoverClass: "hover:bg-blue-600 hover:border-blue-500",
+                      color: "#0A66C2",
                     },
                     {
                       icon: <FaXTwitter className="w-5 h-5" />,
                       href: "https://twitter.com",
-                      label: "Twitter",
-                      hoverClass: "hover:bg-gray-600 hover:border-gray-500",
+                      label: "X",
+                      color: "#A0A0A0",
                     },
                     {
                       icon: <Facebook className="w-5 h-5" />,
                       href: "https://facebook.com",
                       label: "Facebook",
-                      hoverClass: "hover:bg-blue-600 hover:border-blue-500",
+                      color: "#1877F2",
                     },
                     {
                       icon: <Youtube className="w-5 h-5" />,
                       href: "https://youtube.com",
                       label: "YouTube",
-                      hoverClass: "hover:bg-red-600 hover:border-red-500",
+                      color: "#FF0000",
                     },
                     {
                       icon: <FaWhatsapp className="w-5 h-5" />,
                       href: "https://wa.me/919876xxxxxx",
                       label: "WhatsApp",
-                      hoverClass: "hover:bg-green-600 hover:border-green-500",
+                      color: "#25D366",
                     },
-                  ].map((social, idx) => (
+                  ] as const).map((social) => (
                     <motion.a
                       key={social.label}
                       href={social.href}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       aria-label={social.label}
                       whileHover={{ scale: 1.1, y: -2 }}
                       whileTap={{ scale: 0.95 }}
-                      className={`w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/20 transition-all duration-300 ${social.hoverClass} shadow-lg hover:shadow-xl hover:text-white`}
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl`}
+                      style={{
+                        color: social.color,
+                        backgroundColor: `${social.color}20`,
+                        border: `1px solid ${social.color}4D`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = social.color
+                        e.currentTarget.style.border = `1px solid ${social.color}`
+                        e.currentTarget.style.color = "#FFFFFF"
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = `${social.color}20`
+                        e.currentTarget.style.border = `1px solid ${social.color}4D`
+                        e.currentTarget.style.color = social.color
+                      }}
                     >
                       {social.icon}
                     </motion.a>

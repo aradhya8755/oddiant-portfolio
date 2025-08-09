@@ -1,42 +1,31 @@
 "use client"
 
+// Home page performance refactor: unify with company hero structure & migrate heavy DOM animations to canvas.
 import { useRef } from "react"
 import Link from "next/link"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
+import dynamic from "next/dynamic"
+import { motion, useInView } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import FAQSection from "@/components/FAQSection"
 import TypedText from "@/components/TypedText"
-import {
-  ArrowRight,
-  Monitor,
-  Users,
-  UserPlus,
-  BookOpen,
-  CheckCircle,
-  Sparkles,
-  Zap,
-  Shield,
-  Clock,
-  Award,
-} from "lucide-react"
+import { ArrowRight, Monitor, Users, UserPlus, BookOpen, CheckCircle, Sparkles, Zap, Shield, Clock, Award } from 'lucide-react'
+import CanvasStarfield from "@/components/visuals/CanvasStarfield"
+
+// Lazy-load FAQ to defer hydration cost
+const FAQSection = dynamic(() => import("@/components/FAQSection"), {
+  ssr: false,
+  loading: () => <div style={{ minHeight: 420 }} />,
+})
 
 export default function Home() {
-  const targetRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: targetRef,
-    offset: ["start end", "end start"],
-  })
-
-  const y = useTransform(scrollYProgress, [0, 1], [0, -100])
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0.6])
+  // In-view gating for section entrance animations
+  const heroRef = useRef<HTMLDivElement>(null)
+  const isHeroInView = useInView(heroRef, { once: true, amount: 0.25 })
 
   const servicesRef = useRef<HTMLDivElement>(null)
   const isServicesInView = useInView(servicesRef, { once: true, amount: 0.2 })
-
   const aboutRef = useRef<HTMLDivElement>(null)
   const isAboutInView = useInView(aboutRef, { once: true, amount: 0.2 })
-
   const ctaRef = useRef<HTMLDivElement>(null)
   const isCtaInView = useInView(ctaRef, { once: true, amount: 0.2 })
 
@@ -97,205 +86,121 @@ export default function Home() {
     { value: "2", label: "Delivery Centers" },
   ]
 
+  // Removed client-random animated DOM elements; backgrounds now handled by lightweight CanvasStarfield
+
   return (
     <div className="bg-black text-white overflow-hidden">
-      {/* Hero Section */}
-      <motion.section
-        ref={targetRef}
-        style={{ y, opacity }}
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      >
-        {/* Background Elements */}
-        {/* Enhanced Starfield and Orbital Background */}
-        <div className="absolute inset-0 z-0">
-          {/* Base gradient */}
+      {/* Hero Section (Canvas-driven background) */}
+      <section ref={heroRef} className="relative pt-32 pb-24 overflow-hidden" style={{ contain: "layout paint style", contentVisibility: "auto", containIntrinsicSize: "720px" }}>
+        <div className="absolute inset-0 z-0" style={{ pointerEvents: "none" }}>
           <div className="absolute inset-0 bg-gradient-to-b from-black via-zinc-900 to-black" />
-
-          {/* Colorful moving stars */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-            {Array.from({ length: 100 }).map((_, i) => (
-              <motion.div
-                key={`star-${i}`}
-                className="absolute rounded-full"
-                style={{
-                  width: Math.random() * 3 + 1,
-                  height: Math.random() * 3 + 1,
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#06B6D4", "#84CC16"][
-                    Math.floor(Math.random() * 8)
-                  ],
-                  boxShadow: `0 0 ${Math.random() * 10 + 5}px currentColor`,
-                }}
-                animate={{
-                  y: [0, Math.random() * -200 - 100],
-                  x: [0, Math.random() * 100 - 50],
-                  opacity: [0, 1, 0],
-                  scale: [0, 1, 0],
-                }}
-                transition={{
-                  duration: Math.random() * 15 + 10,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                  delay: Math.random() * 5,
-                }}
-              />
-            ))}
+          {/* Faint radial grid overlay */}
+          <div className="absolute inset-0 opacity-[0.08] mix-blend-screen" aria-hidden>
+            <div className="w-full h-full" style={{backgroundImage:"repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.12) 0 1px, transparent 1px 90px)"}} />
           </div>
-
-          {/* Orbital rings */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            {Array.from({ length: 5 }).map((_, i) => (
+          <CanvasStarfield className="absolute inset-0" count={150} opacity={0.9} maxFPS={28} quality="balanced" />
+          {/* Orbital rings enhanced (one extra) */}
+          <div className="absolute inset-0 flex items-center justify-center" style={{ willChange: "transform" }}>
+            {Array.from({ length: 4 }).map((_, i) => (
               <motion.div
-                key={`orbit-${i}`}
+                key={`hero-orbit-${i}`}
                 className="absolute border border-white/10 rounded-full"
-                style={{
-                  width: 200 + i * 150,
-                  height: 200 + i * 150,
-                }}
-                animate={{
-                  rotate: 360,
-                }}
-                transition={{
-                  duration: 20 + i * 10,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                }}
+                style={{ width: 220 + i * 150, height: 220 + i * 150, willChange: "transform" }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 34 + i * 10, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
               >
-                {/* Orbital particles */}
-                {Array.from({ length: 3 + i }).map((_, j) => (
+                {i > 0 && [0,1].map((p) => (
                   <motion.div
-                    key={`orbital-particle-${i}-${j}`}
+                    key={`hero-ring-dot-${i}-${p}`}
                     className="absolute w-2 h-2 rounded-full"
                     style={{
-                      background: `linear-gradient(45deg, ${
-                        ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][i]
-                      }, ${["#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899"][i]})`,
-                      top: "50%",
-                      left: "50%",
-                      transformOrigin: `${100 + i * 75}px 0`,
-                      boxShadow: `0 0 10px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][i]}`,
+                      background:["#3B82F6","#8B5CF6","#10B981","#F59E0B"][ (i+p) % 4],
+                      top:"50%",
+                      left:"50%",
+                      transformOrigin:`${110 + i * 75}px 0`,
+                      boxShadow:`0 0 8px ${["#3B82F6","#8B5CF6","#10B981","#F59E0B"][ (i+p) % 4]}`,
+                      willChange:"transform"
                     }}
-                    animate={{
-                      rotate: -360,
-                    }}
-                    transition={{
-                      duration: 15 + j * 5,
-                      repeat: Number.POSITIVE_INFINITY,
-                      ease: "linear",
-                      delay: j * 2,
-                    }}
+                    animate={{ rotate: p === 0 ? -360 : 360 }}
+                    transition={{ duration: 28 + i * 6, repeat: Number.POSITIVE_INFINITY, ease:"linear" }}
                   />
                 ))}
               </motion.div>
             ))}
           </div>
-
-          {/* Enhanced floating gradient orbs */}
+          {/* Gradient orbs (existing + two subtle extras) */}
           <motion.div
-            className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full filter blur-3xl"
+            className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full filter blur-3xl"
             style={{
-              background:
-                "radial-gradient(circle, rgba(59,130,246,0.3) 0%, rgba(139,92,246,0.2) 50%, transparent 100%)",
+              background: "radial-gradient(circle, rgba(59,130,246,0.26) 0%, rgba(139,92,246,0.16) 55%, transparent 100%)",
+              willChange: "transform, opacity",
             }}
-            animate={{
-              scale: [1, 1.3, 1],
-              opacity: [0.3, 0.6, 0.3],
-              x: [0, 50, 0],
-              y: [0, -30, 0],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Number.POSITIVE_INFINITY,
-              repeatType: "reverse",
-            }}
+            animate={{ scale: [1, 1.25, 1], opacity: [0.32, 0.5, 0.32], x: [0, 40, 0], y: [0, -25, 0] }}
+            transition={{ duration: 18, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" }}
           />
           <motion.div
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full filter blur-3xl"
+            className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full filter blur-3xl"
             style={{
-              background:
-                "radial-gradient(circle, rgba(16,185,129,0.3) 0%, rgba(245,158,11,0.2) 50%, transparent 100%)",
+              background: "radial-gradient(circle, rgba(16,185,129,0.26) 0%, rgba(245,158,11,0.16) 55%, transparent 100%)",
+              willChange: "transform, opacity",
             }}
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3],
-              x: [0, -40, 0],
-              y: [0, 40, 0],
-            }}
-            transition={{
-              duration: 15,
-              repeat: Number.POSITIVE_INFINITY,
-              repeatType: "reverse",
-              delay: 2,
-            }}
+            animate={{ scale: [1, 1.18, 1], opacity: [0.28, 0.42, 0.28], x: [0, -35, 0], y: [0, 30, 0] }}
+            transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse", delay: 2 }}
           />
           <motion.div
-            className="absolute top-1/2 right-1/3 w-64 h-64 rounded-full filter blur-2xl"
-            style={{
-              background: "radial-gradient(circle, rgba(236,72,153,0.4) 0%, rgba(6,182,212,0.2) 50%, transparent 100%)",
-            }}
-            animate={{
-              scale: [1, 1.4, 1],
-              opacity: [0.2, 0.7, 0.2],
-              rotate: [0, 180, 360],
-            }}
-            transition={{
-              duration: 18,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
-            }}
+            className="absolute bottom-10 left-10 w-56 h-56 rounded-full filter blur-2xl"
+            style={{ background:"radial-gradient(circle, rgba(236,72,153,0.3) 0%, rgba(147,197,253,0.15) 60%, transparent 100%)" }}
+            animate={{ scale:[1,1.15,1], opacity:[0.15,0.35,0.15] }}
+            transition={{ duration:24, repeat:Number.POSITIVE_INFINITY, repeatType:"reverse" }}
           />
+          <motion.div
+            className="absolute top-12 right-8 w-48 h-48 rounded-full filter blur-2xl"
+            style={{ background:"radial-gradient(circle, rgba(20,184,166,0.32) 0%, rgba(59,130,246,0.15) 55%, transparent 100%)" }}
+            animate={{ scale:[1,1.2,1], opacity:[0.18,0.4,0.18], rotate:[0,45,0] }}
+            transition={{ duration:30, repeat:Number.POSITIVE_INFINITY, ease:"easeInOut" }}
+          />
+          {/* Center star cluster (static defined small set) */}
+          <div className="absolute inset-0 flex items-center justify-center" aria-hidden>
+            <div className="relative w-[520px] h-[520px]">
+              {[
+                {x:260,y:110,c:'#3B82F6',d:9},
+                {x:300,y:180,c:'#8B5CF6',d:11},
+                {x:180,y:250,c:'#10B981',d:13},
+                {x:340,y:300,c:'#F59E0B',d:10},
+                {x:220,y:340,c:'#EC4899',d:12},
+                {x:280,y:400,c:'#06B6D4',d:14},
+              ].map((s,i)=>(
+                <motion.div key={i} className="absolute rounded-full" style={{ left:s.x, top:s.y, width:6, height:6, background:s.c, boxShadow:`0 0 10px ${s.c}` }} animate={{ opacity:[0.2,1,0.2], scale:[0.8,1.4,0.8] }} transition={{ duration: s.d, repeat:Number.POSITIVE_INFINITY }} />
+              ))}
+            </div>
+          </div>
         </div>
-
-        <div className="container mx-auto px-4 z-10 text-center">
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="hidden"
-            animate="visible"
+            animate={isHeroInView ? "visible" : "hidden"}
             variants={{
-              hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: {
-                  staggerChildren: 0.2,
-                  delayChildren: 0.3,
-                },
-              },
+              hidden: { opacity: 0, y: 30 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
             }}
-            className="max-w-4xl mx-auto space-y-8"
+            className="max-w-4xl mx-auto text-center space-y-8"
           >
-            <motion.div
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-              }}
-            >
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-300 to-gray-100 leading-tight">
-                <TypedText
-                  strings={["Empowering Through Personality, Talent & Tech"]}
-                  typeSpeed={70}
-                  showCursor={true}
-                />
-              </h1>
-            </motion.div>
-
-            <motion.p
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-              }}
-              className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto"
-            >
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-300 to-gray-100 leading-tight">
+              <TypedText
+                strings={["Empowering Through Personality, Talent & Tech"]}
+                typeSpeed={70} /* slower (ms per char) for readable pace */
+                backSpeed={40}
+                backDelay={1200}
+                loop={false} /* only type once since single string */
+                showCursor={true}
+                className="text-white"
+              />
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
               Innovative IT consulting, expert staffing solutions, and tailored personality development
               programs—delivered to fit your unique business needs.
-            </motion.p>
-
-            <motion.div
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-              }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6"
-            >
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               <Button
                 asChild
                 className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white rounded-full px-8 py-7 text-lg group transition-all duration-300"
@@ -313,95 +218,24 @@ export default function Home() {
               >
                 <Link href="/contact">Contact Us</Link>
               </Button>
-            </motion.div>
-
-            {/* Scroll indicator */}
-            <motion.div
-              variants={{
-                hidden: { opacity: 0 },
-                visible: { opacity: 1, transition: { delay: 1.5, duration: 1 } },
-              }}
-              className="absolute bottom-10 left-0 right-0 flex justify-center"
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
-            >
-              <div className="flex flex-col items-center">
-                <span className="text-sm text-gray-400 mb-2">Scroll to explore</span>
-                <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center p-1">
-                  <motion.div
-                    className="w-1.5 h-1.5 bg-gray-400 rounded-full"
-                    animate={{ y: [0, 12, 0] }}
-                    transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
-                  />
-                </div>
-              </div>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
-      </motion.section>
+      </section>
 
       {/* Services Section */}
-      <section ref={servicesRef} className="py-24 relative overflow-hidden">
-        {/* Enhanced background for services */}
+      <section ref={servicesRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "760px" }}>
         <div className="absolute inset-0 bg-gradient-to-b from-black to-zinc-900" />
-
-        {/* Animated constellation pattern */}
-        <div className="absolute inset-0">
-          {Array.from({ length: 50 }).map((_, i) => (
-            <motion.div
-              key={`service-star-${i}`}
-              className="absolute"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-              }}
-              initial={{ opacity: 0 }}
-              animate={{
-                opacity: [0, 1, 0],
-                scale: [0.5, 1.5, 0.5],
-              }}
-              transition={{
-                duration: Math.random() * 8 + 4,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 5,
-              }}
-            >
-              <div
-                className="w-1 h-1 rounded-full"
-                style={{
-                  background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][Math.floor(Math.random() * 4)],
-                  boxShadow: `0 0 ${Math.random() * 8 + 4}px currentColor`,
-                }}
-              />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Floating geometric shapes */}
+        <CanvasStarfield className="absolute inset-0" count={90} opacity={0.7} maxFPS={30} quality="balanced" />
+        {/* Minimal decorative shapes retained */}
+        <motion.div className="absolute top-20 left-10 w-28 h-28 border border-blue-500/15 rounded-full" animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Number.POSITIVE_INFINITY, ease: "linear" }} />
+        {/* Added subtle secondary shape (slow float + rotate) */}
         <motion.div
-          className="absolute top-20 left-10 w-32 h-32 border border-blue-500/20 rounded-full"
-          animate={{
-            rotate: 360,
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            rotate: { duration: 25, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-            scale: { duration: 8, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
-          }}
+          className="absolute bottom-16 right-8 w-16 h-16 border border-purple-500/15 rounded-lg"
+          style={{ backdropFilter: "blur(2px)" }}
+          animate={{ rotate: -360, y: [0, -18, 0] }}
+          transition={{ rotate: { duration: 70, repeat: Number.POSITIVE_INFINITY, ease: "linear" }, y: { duration: 14, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" } }}
         />
-        <motion.div
-          className="absolute bottom-20 right-10 w-24 h-24 border border-purple-500/20"
-          style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}
-          animate={{
-            rotate: -360,
-            y: [0, -20, 0],
-          }}
-          transition={{
-            rotate: { duration: 30, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-            y: { duration: 6, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
-          }}
-        />
-
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="hidden"
@@ -422,7 +256,6 @@ export default function Home() {
               We provide end-to-end solutions tailored to your business requirements
             </p>
           </motion.div>
-
           <motion.div
             initial="hidden"
             animate={isServicesInView ? "visible" : "hidden"}
@@ -436,7 +269,6 @@ export default function Home() {
                 green: "from-green-500 to-green-700 shadow-green-500/20",
                 amber: "from-amber-500 to-amber-700 shadow-amber-500/20",
               }
-
               return (
                 <motion.div
                   key={service.title}
@@ -459,10 +291,6 @@ export default function Home() {
                       <p className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
                         {service.description}
                       </p>
-                      {/* <div className="mt-6 flex items-center text-blue-400 group-hover:text-blue-300 transition-colors duration-300">
-                        <span className="text-sm font-medium">Learn more</span>
-                        <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </div> */}
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -473,58 +301,9 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section ref={aboutRef} className="py-24 relative overflow-hidden">
-        {/* Dynamic background */}
+      <section ref={aboutRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "880px" }}>
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 to-black" />
-
-        {/* Spiral galaxy effect */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <motion.div
-              key={`spiral-${i}`}
-              className="absolute"
-              style={{
-                width: 300 + i * 100,
-                height: 300 + i * 100,
-              }}
-              animate={{
-                rotate: 360,
-              }}
-              transition={{
-                duration: 40 + i * 10,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "linear",
-              }}
-            >
-              {Array.from({ length: 12 }).map((_, j) => (
-                <motion.div
-                  key={`spiral-particle-${i}-${j}`}
-                  className="absolute w-1 h-1 rounded-full"
-                  style={{
-                    background: `linear-gradient(45deg, ${
-                      ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#06B6D4", "#84CC16"][i]
-                    }, transparent)`,
-                    top: "50%",
-                    left: "50%",
-                    transformOrigin: `${150 + i * 50}px 0`,
-                    transform: `rotate(${j * 30}deg)`,
-                    boxShadow: `0 0 6px ${["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#06B6D4", "#84CC16"][i]}`,
-                  }}
-                  animate={{
-                    opacity: [0, 1, 0],
-                    scale: [0.5, 1, 0.5],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Number.POSITIVE_INFINITY,
-                    delay: j * 0.3,
-                  }}
-                />
-              ))}
-            </motion.div>
-          ))}
-        </div>
-
+        <CanvasStarfield className="absolute inset-0" count={70} opacity={0.65} maxFPS={28} quality="balanced" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <motion.div initial="hidden" animate={isAboutInView ? "visible" : "hidden"} variants={fadeInUpVariants}>
@@ -543,7 +322,6 @@ export default function Home() {
                   matter. Our commitment to excellence has earned us the trust of 20+ global clients who rely on us for
                   dependable, top-tier service.
                 </p>
-
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <div className="mt-1 text-green-400">
@@ -555,7 +333,6 @@ export default function Home() {
                       careers around the world.
                     </p>
                   </div>
-
                   <div className="flex items-start gap-3">
                     <div className="mt-1 text-green-400">
                       <CheckCircle className="h-5 w-5" />
@@ -567,7 +344,6 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-
               <div className="mt-8">
                 <Button
                   asChild
@@ -582,7 +358,6 @@ export default function Home() {
                 </Button>
               </div>
             </motion.div>
-
             <motion.div
               initial="hidden"
               animate={isAboutInView ? "visible" : "hidden"}
@@ -591,7 +366,6 @@ export default function Home() {
             >
               <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 mix-blend-overlay z-10" />
-
                 {/* Stats grid */}
                 <div className="absolute inset-0 flex items-center justify-center z-20">
                   <div className="grid grid-cols-2 gap-6 w-full max-w-md p-6">
@@ -603,15 +377,18 @@ export default function Home() {
                         transition={{ delay: 0.2 + idx * 0.1, duration: 0.5 }}
                         className="bg-white/10 backdrop-blur-md rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-white/20 transition-all duration-300 hover:scale-105 shadow-lg"
                       >
-                        <span className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-2">
+                        <motion.span
+                          className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-2"
+                          animate={{ scale: [1, 1.06, 1] }}
+                          transition={{ duration: 6 + idx, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" }}
+                        >
                           {stat.value}
-                        </span>
+                        </motion.span>
                         <span className="text-sm text-gray-300">{stat.label}</span>
                       </motion.div>
                     ))}
                   </div>
                 </div>
-
                 {/* Background pattern */}
                 <div className="absolute inset-0 bg-zinc-900 z-0">
                   <div className="absolute inset-0 opacity-30">
@@ -625,7 +402,6 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-
               {/* Floating elements */}
               <motion.div
                 className="absolute -top-8 -right-8 w-24 h-24 bg-blue-500/30 rounded-full filter blur-xl"
@@ -658,58 +434,9 @@ export default function Home() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-24 relative overflow-hidden">
-        {/* Enhanced background */}
+      <section className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "880px" }}>
         <div className="absolute inset-0 bg-gradient-to-b from-black to-zinc-900" />
-
-        {/* Network constellation */}
-        <div className="absolute inset-0">
-          {Array.from({ length: 30 }).map((_, i) => (
-            <motion.div
-              key={`network-node-${i}`}
-              className="absolute w-2 h-2 rounded-full"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][Math.floor(Math.random() * 5)],
-                boxShadow: `0 0 10px currentColor`,
-              }}
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.5, 1, 0.5],
-              }}
-              transition={{
-                duration: Math.random() * 4 + 2,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 3,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Floating hexagons */}
-        {Array.from({ length: 6 }).map((_, i) => (
-          <motion.div
-            key={`hexagon-${i}`}
-            className="absolute border border-white/10"
-            style={{
-              width: 60 + i * 20,
-              height: 60 + i * 20,
-              clipPath: "polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)",
-              top: `${20 + i * 15}%`,
-              left: `${10 + i * 15}%`,
-            }}
-            animate={{
-              rotate: 360,
-              y: [0, -30, 0],
-            }}
-            transition={{
-              rotate: { duration: 20 + i * 5, repeat: Number.POSITIVE_INFINITY, ease: "linear" },
-              y: { duration: 8 + i * 2, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" },
-            }}
-          />
-        ))}
-
+        <CanvasStarfield className="absolute inset-0" count={60} opacity={0.75} speedX={{ min: 0.12, max: 0.28 }} speedY={{ min: -0.02, max: 0.02 }} size={{ min: 0.6, max: 1.6 }} maxFPS={26} quality="battery" />
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="hidden"
@@ -731,7 +458,6 @@ export default function Home() {
               Discover what makes Oddiant Techlabs the preferred choice for businesses worldwide
             </p>
           </motion.div>
-
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -795,136 +521,43 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-24 relative overflow-hidden">
-        {/* Enhanced background for FAQ section */}
+      {/* FAQ Section (lighter background, deferred hydration) */}
+      <section className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "760px" }}>
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-black" />
-
-        {/* Cosmic nebula effect */}
-        <div className="absolute inset-0 opacity-30">
-          <motion.div
-            className="absolute top-0 left-0 w-full h-full"
-            style={{
-              background:
-                "radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.15) 0%, rgba(30,27,75,0.1) 50%, transparent 100%)",
-            }}
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.3, 0.4, 0.3],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Number.POSITIVE_INFINITY,
-              repeatType: "reverse",
-            }}
-          />
-        </div>
-
-        {/* Floating particles */}
-        <div className="absolute inset-0">
-          {Array.from({ length: 30 }).map((_, i) => (
-            <motion.div
-              key={`faq-particle-${i}`}
-              className="absolute rounded-full"
-              style={{
-                width: Math.random() * 3 + 1,
-                height: Math.random() * 3 + 1,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EC4899"][Math.floor(Math.random() * 5)],
-                boxShadow: `0 0 ${Math.random() * 6 + 3}px currentColor`,
-              }}
-              animate={{
-                y: [0, Math.random() * -50 - 20],
-                opacity: [0, 0.7, 0],
-                scale: [0, 1, 0],
-              }}
-              transition={{
-                duration: Math.random() * 10 + 5,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 5,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Orbital rings */}
-        <motion.div
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-purple-500/10 rounded-full"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 40, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-        />
-        <motion.div
-          className="absolute right-0 top-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-blue-500/10 rounded-full"
-          animate={{ rotate: -360 }}
-          transition={{ duration: 30, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-        />
-
+        <CanvasStarfield className="absolute inset-0" count={50} opacity={0.55} maxFPS={26} quality="battery" />
         <div className="container mx-auto px-4 relative z-10">
           <FAQSection />
         </div>
       </section>
 
       {/* CTA Section */}
-      <section ref={ctaRef} className="py-24 relative overflow-hidden">
-        {/* Enhanced CTA background */}
+      <section ref={ctaRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "760px" }}>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-purple-900/20" />
-
-        {/* Shooting stars */}
-        <div className="absolute inset-0">
-          {Array.from({ length: 15 }).map((_, i) => (
+        <CanvasStarfield className="absolute inset-0" count={80} opacity={0.55} speedX={{ min: 0.05, max: 0.25 }} speedY={{ min: -0.01, max: 0.01 }} size={{ min: 0.8, max: 1.8 }} maxFPS={28} quality="balanced" />
+        {/* Reintroduced optimized floating visuals (few elements only) */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+          {Array.from({ length: 3 }).map((_, i) => (
             <motion.div
-              key={`shooting-star-${i}`}
-              className="absolute h-0.5 rounded-full"
-              style={{
-                width: Math.random() * 100 + 50,
-                background: `linear-gradient(90deg, ${
-                  ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444"][Math.floor(Math.random() * 5)]
-                }, transparent)`,
-                top: `${Math.random() * 100}%`,
-                left: "-100px",
-                boxShadow: `0 0 10px currentColor`,
-              }}
-              animate={{
-                x: ["0px", "100vw"],
-                opacity: [0, 1, 0],
-              }}
-              transition={{
-                duration: Math.random() * 3 + 2,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: Math.random() * 8,
-                ease: "linear",
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Pulsing energy rings */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <motion.div
-              key={`energy-ring-${i}`}
+              key={`cta-ring-${i}`}
               className="absolute border rounded-full"
               style={{
-                width: 200 + i * 150,
-                height: 200 + i * 150,
-                borderColor: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][i],
+                width: 260 + i * 180,
+                height: 260 + i * 180,
+                borderColor: ["#3B82F6", "#8B5CF6", "#10B981"][i % 3] + "33",
                 borderWidth: "1px",
-                opacity: 0.3,
               }}
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.6, 0.3],
-              }}
-              transition={{
-                duration: 4 + i * 2,
-                repeat: Number.POSITIVE_INFINITY,
-                delay: i * 0.5,
-              }}
+              animate={{ rotate: i % 2 === 0 ? 360 : -360, opacity: [0.25, 0.45, 0.25], scale: [1, 1.08, 1] }}
+              transition={{ duration: 60 + i * 15, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
             />
           ))}
+          {/* Single gradient energy orb */}
+          <motion.div
+            className="absolute w-72 h-72 rounded-full filter blur-3xl"
+            style={{ background: "radial-gradient(circle at 30% 30%, rgba(59,130,246,0.35), rgba(139,92,246,0.18) 55%, transparent 75%)" }}
+            animate={{ scale: [1, 1.25, 1], opacity: [0.25, 0.5, 0.25], rotate: [0, 45, 0] }}
+            transition={{ duration: 35, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+          />
         </div>
-
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="hidden"

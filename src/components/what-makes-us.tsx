@@ -15,6 +15,7 @@ import {
   Briefcase,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useClientRandom } from "@/hooks/use-client-random"
 
 export default function WhatMakesUsDifferent() {
   const differentiators = [
@@ -98,37 +99,40 @@ export default function WhatMakesUsDifferent() {
     return differentiators.slice(startIndex, startIndex + itemsPerSlide)
   }
 
+  // Client-only constellation
+  const constellation = useClientRandom(
+    () => ({
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      colorIndex: Math.floor(Math.random() * 4),
+      boxShadow: `0 0 ${Math.random() * 6 + 3}px currentColor`,
+      duration: Math.random() * 6 + 4,
+      delay: Math.random() * 5,
+    }),
+    50
+  )
+
   return (
-    <section className="py-24 relative overflow-hidden">
+  <section className="py-24 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "900px" }}>
       {/* Enhanced cosmic background */}
       <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-black" />
 
       {/* Animated constellation pattern */}
-      <div className="absolute inset-0">
-        {Array.from({ length: 50 }).map((_, i) => (
+      <div className="absolute inset-0" style={{ pointerEvents: "none", willChange: "transform, opacity" }}>
+        {constellation.map((c, i) => (
           <motion.div
             key={`diff-star-${i}`}
             className="absolute"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-            }}
+            style={{ top: c.top, left: c.left, willChange: "transform, opacity" }}
             initial={{ opacity: 0 }}
-            animate={{
-              opacity: [0, 1, 0],
-              scale: [0.5, 1.5, 0.5],
-            }}
-            transition={{
-              duration: Math.random() * 6 + 4,
-              repeat: Number.POSITIVE_INFINITY,
-              delay: Math.random() * 5,
-            }}
+            animate={{ opacity: [0, 1, 0], scale: [0.5, 1.5, 0.5] }}
+            transition={{ duration: c.duration, repeat: Number.POSITIVE_INFINITY, delay: c.delay }}
           >
             <div
               className="w-1 h-1 rounded-full"
               style={{
-                background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][Math.floor(Math.random() * 4)],
-                boxShadow: `0 0 ${Math.random() * 6 + 3}px currentColor`,
+                background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B"][c.colorIndex],
+                boxShadow: c.boxShadow,
               }}
             />
           </motion.div>
@@ -161,10 +165,11 @@ export default function WhatMakesUsDifferent() {
       />
 
       {/* Enhanced gradient orbs */}
-      <motion.div
+    <motion.div
         className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full filter blur-3xl opacity-20"
         style={{
-          background: "radial-gradient(circle, rgba(59,130,246,0.4) 0%, rgba(139,92,246,0.2) 50%, transparent 100%)",
+      background: "radial-gradient(circle, rgba(59,130,246,0.4) 0%, rgba(139,92,246,0.2) 50%, transparent 100%)",
+      willChange: "transform, opacity",
         }}
         animate={{
           scale: [1, 1.2, 1],
@@ -178,10 +183,11 @@ export default function WhatMakesUsDifferent() {
           repeatType: "reverse",
         }}
       />
-      <motion.div
+    <motion.div
         className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full filter blur-3xl opacity-20"
         style={{
-          background: "radial-gradient(circle, rgba(16,185,129,0.4) 0%, rgba(245,158,11,0.2) 50%, transparent 100%)",
+      background: "radial-gradient(circle, rgba(16,185,129,0.4) 0%, rgba(245,158,11,0.2) 50%, transparent 100%)",
+      willChange: "transform, opacity",
         }}
         animate={{
           scale: [1, 1.3, 1],
@@ -232,17 +238,33 @@ export default function WhatMakesUsDifferent() {
           <AnimatePresence mode="wait">
             <motion.div
               key={currentIndex}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8"
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 min-h-[280px]"
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
               transition={{ duration: 0.5 }}
             >
-              {getVisibleItems().map((item, idx) => (
+              {(function(){
+                const items = getVisibleItems()
+                if (!items.length) {
+                  return Array.from({ length: 3 }).map((_, idx) => (
+                    <div key={`skeleton-${idx}`} className="h-full">
+                      <Card className="bg-white/5 backdrop-blur-sm border-zinc-700/50 h-full animate-pulse">
+                        <CardContent className="p-6 h-full flex flex-col">
+                          <div className="mb-4 bg-white/10 rounded-lg w-16 h-10" />
+                          <div className="h-6 bg-white/10 rounded w-2/3 mb-3" />
+                          <div className="h-4 bg-white/10 rounded w-full mb-2" />
+                          <div className="h-4 bg-white/10 rounded w-5/6" />
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ))
+                }
+                return items.map((item, idx) => (
                 <motion.div
                   key={item.title}
                   initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
                   whileHover={{ scale: 1.05 }}
                   className="h-full"
@@ -257,7 +279,8 @@ export default function WhatMakesUsDifferent() {
                     </CardContent>
                   </Card>
                 </motion.div>
-              ))}
+                ))
+              })()}
             </motion.div>
           </AnimatePresence>
 

@@ -1,97 +1,64 @@
 "use client"
-
 import type React from "react"
-
 import { useState, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { motion, useInView } from "framer-motion"
+import { motion, useInView, useReducedMotion } from "framer-motion"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import {
-  Linkedin,
-  Facebook,
-  Youtube,
-  Mail,
-  Phone,
-  MapPin,
-  Clock,
-  ArrowRight,
-  CheckCircle2,
-  AlertCircle,
-  Sparkles,
-} from "lucide-react"
-import { subscribeToNewsletter } from "@/app/actions/newsletter-actions"
-import { AnimatePresence } from "framer-motion"
+import { Linkedin, Facebook, Youtube, Mail, Phone, MapPin, Clock, ArrowRight, Sparkles } from 'lucide-react'
 import { FaWhatsapp } from "react-icons/fa"
+import CanvasStarfield from "@/components/visuals/CanvasStarfield"
 
 export function Footer() {
+  const prefersReducedMotion = useReducedMotion()
   const [email, setEmail] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [subscriptionStatus, setSubscriptionStatus] = useState<{
-    success: boolean
-    message: string
-    visible: boolean
-  } | null>(null)
-
+  const [successMessage, setSuccessMessage] = useState("")
   const footerRef = useRef(null)
   const isInView = useInView(footerRef, { once: true, amount: 0.2 })
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email) {
+    if (!email) return
+    try {
+      setIsSubmitting(true)
+      // Correct API endpoint (was '/api/newsletter/subscribe' causing 404 HTML page -> JSON parse error)
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      })
+      // Safely attempt to parse JSON; fallback to generic error if HTML or invalid JSON returned
+  let data: unknown = null
+      const text = await response.text()
       try {
-        setIsSubmitting(true)
-        setSubscriptionStatus(null)
-
-        const result = await subscribeToNewsletter(email)
-
-        if (result.success) {
-          // Show success message
-          setSubscriptionStatus({
-            success: true,
-            message: "Thank you for subscribing to our newsletter!",
-            visible: true,
-          })
-          toast.success("Thank you for subscribing to our newsletter!")
-          setEmail("")
-
-          // Hide the message after 5 seconds
-          setTimeout(() => {
-            setSubscriptionStatus((prev) => (prev ? { ...prev, visible: false } : null))
-          }, 5000)
-        } else {
-          // Show error message
-          setSubscriptionStatus({
-            success: false,
-            message: result.message || "Failed to subscribe. Please try again.",
-            visible: true,
-          })
-          toast.error(result.message || "Failed to subscribe. Please try again.")
-
-          // Hide the message after 5 seconds
-          setTimeout(() => {
-            setSubscriptionStatus((prev) => (prev ? { ...prev, visible: false } : null))
-          }, 5000)
+        data = text ? JSON.parse(text) : null
+      } catch {
+        // If not JSON, treat as failure (likely a 404/500 HTML error page)
+        if (!response.ok) {
+          throw new Error("Subscription request failed")
         }
-      } catch (error) {
-        console.error("Subscription error:", error)
-        setSubscriptionStatus({
-          success: false,
-          message: "An error occurred. Please try again later.",
-          visible: true,
-        })
-        toast.error("An error occurred. Please try again later.")
-
-        // Hide the message after 5 seconds
-        setTimeout(() => {
-          setSubscriptionStatus((prev) => (prev ? { ...prev, visible: false } : null))
-        }, 5000)
-      } finally {
-        setIsSubmitting(false)
       }
+      if (!response.ok) {
+        const message = (typeof data === "object" && data !== null && "message" in data && typeof (data as { message: unknown }).message === "string")
+          ? (data as { message: string }).message
+          : undefined
+        throw new Error(message || "Failed to subscribe")
+      }
+      setSuccessMessage("Thank you for subscribing to our newsletter!")
+      setEmail("")
+      setTimeout(() => setSuccessMessage(""), 4000)
+    } catch (error) {
+      console.error("Subscription error:", error)
+      setSuccessMessage(error instanceof Error ? error.message : "Failed to subscribe. Please try again.")
+      setTimeout(() => setSuccessMessage(""), 4000)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -107,12 +74,10 @@ export function Footer() {
       },
     },
   }
-
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   }
-
   const XIcon = () => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -125,58 +90,38 @@ export function Footer() {
       <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z" />
     </svg>
   )
-
   const socialLinks = [
-    {
-      icon: <Linkedin className="w-5 h-5" />,
-      href: "https://linkedin.com",
-      label: "LinkedIn",
-    },
-    { icon: <XIcon />, href: "https://twitter.com", label: "X" },
-    {
-      icon: <Facebook className="w-5 h-5" />,
-      href: "https://facebook.com",
-      label: "Facebook",
-    },
-    {
-      icon: <Youtube className="w-5 h-5" />,
-      href: "https://youtube.com",
-      label: "YouTube",
-    },
-    {
-      icon: <FaWhatsapp className="w-5 h-5" />,
-      href: "https://whatsapp.com",
-      label: "WhatsApp",
-    },
-  ]
-
+    { icon: <Linkedin className="w-5 h-5" />, href: "https://linkedin.com", label: "LinkedIn", color: "#0A66C2" },
+    { icon: <XIcon />, href: "https://twitter.com", label: "X", color: "#A0A0A0" },
+    { icon: <Facebook className="w-5 h-5" />, href: "https://facebook.com", label: "Facebook", color: "#1877F2" },
+    { icon: <Youtube className="w-5 h-5" />, href: "https://youtube.com", label: "YouTube", color: "#FF0000" },
+    { icon: <FaWhatsapp className="w-5 h-5" />, href: "https://whatsapp.com", label: "WhatsApp", color: "#25D366" },
+  ] as const
   const quickLinks = [
     { href: "/", label: "Home" },
     { href: "/company", label: "Company" },
     { href: "/solutions", label: "Solutions" },
     { href: "/contact", label: "Contact Us" },
   ]
-
   const serviceLinks = [
     { href: "/solutions#it-consulting", label: "IT Consulting" },
     { href: "/solutions#hr-services", label: "HR Consulting" },
     { href: "/solutions#recruitment", label: "Recruitment & Manpower" },
     { href: "/solutions#staffing", label: "Personality Development" },
   ]
-
   return (
-    <motion.footer
-      ref={footerRef}
-      variants={footerVariants}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      className="relative bg-gradient-to-b from-black to-zinc-900 text-white pt-20 pb-8 overflow-hidden z-10"
-    >
+      <motion.footer
+        ref={footerRef}
+        variants={footerVariants}
+        initial="hidden"
+        animate={isInView ? "visible" : "hidden"}
+        className="relative bg-gradient-to-b from-black to-zinc-900 text-white pt-20 pb-8 overflow-hidden z-10"
+        style={{ contentVisibility: "auto", containIntrinsicSize: "800px" }}
+      >
       {/* Enhanced Background Elements */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         {/* Deep space gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-black via-zinc-900/80 to-[#0c0a20]" />
-
         {/* Cosmic dust */}
         <div
           className="absolute inset-0 opacity-20"
@@ -185,7 +130,6 @@ export function Footer() {
             backgroundSize: "30px 30px",
           }}
         />
-
         {/* Animated nebula clouds */}
         <motion.div
           className="absolute top-0 left-0 w-full h-full opacity-10"
@@ -203,7 +147,6 @@ export function Footer() {
             repeatType: "reverse",
           }}
         />
-
         <motion.div
           className="absolute top-0 right-0 w-full h-full opacity-10"
           style={{
@@ -221,34 +164,8 @@ export function Footer() {
             delay: 5,
           }}
         />
-
-        {/* Colorful stars */}
-        {Array.from({ length: 50 }).map((_, i) => (
-          <motion.div
-            key={`footer-star-${i}`}
-            className="absolute rounded-full"
-            style={{
-              width: Math.random() * 2 + 1,
-              height: Math.random() * 2 + 1,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EC4899", "#06B6D4"][
-                Math.floor(Math.random() * 6)
-              ],
-              boxShadow: `0 0 ${Math.random() * 5 + 2}px currentColor`,
-            }}
-            animate={{
-              opacity: [0, 0.8, 0],
-              scale: [0, 1, 0],
-            }}
-            transition={{
-              duration: Math.random() * 3 + 2,
-              repeat: Number.POSITIVE_INFINITY,
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-
+  {/* Starfield (SSR-safe) */}
+  <CanvasStarfield className="absolute inset-0" count={prefersReducedMotion ? 40 : 80} opacity={0.6} maxFPS={28} quality={prefersReducedMotion ? "battery" : "balanced"} />
         {/* Orbital rings */}
         <div className="absolute inset-0 flex items-center justify-center">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -298,37 +215,25 @@ export function Footer() {
             </motion.div>
           ))}
         </div>
-
         {/* Enhanced gradient orbs */}
         <motion.div
           className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full filter blur-3xl opacity-10"
           style={{
             background: "radial-gradient(circle, rgba(59,130,246,0.4) 0%, rgba(139,92,246,0.2) 50%, transparent 80%)",
           }}
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.1, 0.15, 0.1],
-            x: [0, 50, 0],
-            y: [0, -30, 0],
-          }}
+          animate={isInView ? { scale: [1, 1.3, 1], opacity: [0.1, 0.15, 0.1], x: [0, 50, 0], y: [0, -30, 0] } : {}}
           transition={{
             duration: 15,
             repeat: Number.POSITIVE_INFINITY,
             repeatType: "reverse",
           }}
         />
-
         <motion.div
           className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full filter blur-3xl opacity-10"
           style={{
             background: "radial-gradient(circle, rgba(16,185,129,0.4) 0%, rgba(245,158,11,0.2) 50%, transparent 80%)",
           }}
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.1, 0.15, 0.1],
-            x: [0, -40, 0],
-            y: [0, 40, 0],
-          }}
+          animate={isInView ? { scale: [1, 1.2, 1], opacity: [0.1, 0.15, 0.1], x: [0, -40, 0], y: [0, 40, 0] } : {}}
           transition={{
             duration: 18,
             repeat: Number.POSITIVE_INFINITY,
@@ -337,7 +242,6 @@ export function Footer() {
           }}
         />
       </div>
-
       <div className="container mx-auto px-4 relative z-10">
         {/* Newsletter Subscription */}
         <motion.div variants={itemVariants} className="relative mb-16 pb-16 border-b border-zinc-800">
@@ -357,7 +261,6 @@ export function Footer() {
             >
               <Sparkles className="h-5 w-5 text-blue-400" />
             </motion.div>
-
             <motion.div
               className="absolute bottom-4 right-4"
               animate={{
@@ -373,7 +276,6 @@ export function Footer() {
             >
               <Sparkles className="h-5 w-5 text-purple-400" />
             </motion.div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div>
                 <h3 className="text-2xl font-bold mb-3 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -384,82 +286,66 @@ export function Footer() {
                 </p>
               </div>
               <div>
-                <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1 relative">
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email"
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder:text-gray-400"
-                      required
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium transition-all duration-300 rounded-md py-6"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <span className="flex items-center">
-                        <svg
-                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        Subscribing...
-                      </span>
-                    ) : (
-                      <span className="flex items-center">
-                        Subscribe <ArrowRight className="ml-2 h-4 w-4" />
-                      </span>
-                    )}
-                  </Button>
-                </form>
-
-                {/* Subscription Status Message */}
-                <AnimatePresence>
-                  {subscriptionStatus && subscriptionStatus.visible && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                      className={`mt-3 p-3 rounded-md flex items-center gap-2 ${
-                        subscriptionStatus.success
-                          ? "bg-green-900/30 text-green-300 border border-green-800"
-                          : "bg-red-900/30 text-red-300 border border-red-800"
-                      }`}
+                <form onSubmit={handleSubscribe} className="flex flex-col gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1 relative">
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => { setEmail(e.target.value); setSuccessMessage("") }}
+                        placeholder="Enter your email"
+                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder:text-gray-400"
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium transition-all duration-300 rounded-md py-6"
+                      disabled={isSubmitting}
                     >
-                      {subscriptionStatus.success ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-400" />
+                      {isSubmitting ? (
+                        <span className="flex items-center">
+                          <svg
+                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Subscribing...
+                        </span>
                       ) : (
-                        <AlertCircle className="h-5 w-5 text-red-400" />
+                        <span className="flex items-center">
+                          Subscribe <ArrowRight className="ml-2 h-4 w-4" />
+                        </span>
                       )}
-                      <span className="text-sm font-medium">{subscriptionStatus.message}</span>
-                    </motion.div>
+                    </Button>
+                  </div>
+                  {/* Success/Error Message - Compact and styled */}
+                  {successMessage && (
+                    <div className="px-3 py-2 rounded-md bg-green-600/80 border border-green-400 text-white text-sm font-medium shadow-lg transition-all duration-300">
+                      {successMessage}
+                    </div>
                   )}
-                </AnimatePresence>
+                </form>
               </div>
             </div>
           </div>
         </motion.div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Logo and Company Info */}
           <motion.div variants={itemVariants} className="col-span-1 md:col-span-1">
@@ -474,47 +360,33 @@ export function Footer() {
             </p>
             <p className="text-md font-bold text-white mb-4">Follow Us:</p>
             <div className="flex space-x-3">
-              {socialLinks.map((link) => {
-                let hoverColor = ""
-
-                switch (link.label) {
-                  case "WhatsApp":
-                    hoverColor = "hover:bg-green-500"
-                    break
-                  case "Facebook":
-                    hoverColor = "hover:bg-blue-600"
-                    break
-                  case "LinkedIn":
-                    hoverColor = "hover:bg-blue-500"
-                    break
-                  case "X":
-                    hoverColor = "hover:bg-gray-500"
-                    break
-                  case "YouTube":
-                    hoverColor = "hover:bg-red-600"
-                    break
-                  default:
-                    hoverColor = "hover:bg-white/20"
-                }
-
-                return (
-                  <motion.a
-                    key={link.label}
-                    href={link.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={link.label}
-                    whileHover={{ scale: 1.1, y: -3 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                    className={`w-10 h-10 rounded-full bg-white/10 flex items-center justify-center transition-all duration-300 ${hoverColor} hover:shadow-lg hover:shadow-${link.label.toLowerCase()}-500/20`}
-                  >
-                    {link.icon}
-                  </motion.a>
-                )
-              })}
+              {socialLinks.map((link) => (
+                <motion.a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={link.label}
+                  whileHover={{ scale: 1.1, y: -3 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl"
+                  style={{ color: link.color, backgroundColor: `${link.color}20`, border: `1px solid ${link.color}4D` }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = link.color
+                    e.currentTarget.style.border = `1px solid ${link.color}`
+                    e.currentTarget.style.color = "#FFFFFF"
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `${link.color}20`
+                    e.currentTarget.style.border = `1px solid ${link.color}4D`
+                    e.currentTarget.style.color = link.color
+                  }}
+                >
+                  {link.icon}
+                </motion.a>
+              ))}
             </div>
           </motion.div>
-
           {/* Quick Links */}
           <motion.div variants={itemVariants} className="col-span-1">
             <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -534,7 +406,6 @@ export function Footer() {
               ))}
             </ul>
           </motion.div>
-
           {/* Services */}
           <motion.div variants={itemVariants} className="col-span-1">
             <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -554,7 +425,6 @@ export function Footer() {
               ))}
             </ul>
           </motion.div>
-
           {/* Contact Info */}
           <motion.div variants={itemVariants} className="col-span-1">
             <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -625,9 +495,7 @@ export function Footer() {
             </ul>
           </motion.div>
         </div>
-
         <Separator className="my-10 bg-gradient-to-r from-transparent via-zinc-700 to-transparent opacity-30" />
-
         {/* Bottom Section */}
         <motion.div
           variants={itemVariants}
@@ -643,7 +511,6 @@ export function Footer() {
             >
               Privacy Policy
             </a>
-
             <a
               href="/terms-of-service"
               target="_blank"

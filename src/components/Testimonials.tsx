@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { testimonials } from "../data"
+import { useClientRandom } from "@/hooks/use-client-random"
 
 const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -49,34 +50,47 @@ const Testimonials = () => {
     testimonials[(currentIndex + 2) % testimonials.length],
   ]
 
+  // Client-only starfield to avoid SSR/client random mismatches
+  const stars = useClientRandom(
+    () => ({
+      width: Math.random() * 2 + 1,
+      height: Math.random() * 2 + 1,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EC4899"][Math.floor(Math.random() * 5)],
+      boxShadow: `0 0 ${Math.random() * 6 + 3}px currentColor`,
+      duration: Math.random() * 4 + 3,
+      delay: Math.random() * 5,
+    }),
+    60
+  )
+
+  // Ensure we only render random visuals after mount
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
   return (
-    <div className="py-20 relative overflow-hidden">
+    <div className="py-20 relative overflow-hidden" style={{ contentVisibility: "auto", containIntrinsicSize: "800px" }}>
       {/* Enhanced cosmic background */}
       <div className="absolute inset-0 bg-gradient-to-b from-black to-zinc-900" />
 
       {/* Animated starfield */}
-      <div className="absolute inset-0">
-        {Array.from({ length: 60 }).map((_, i) => (
+      <div className="absolute inset-0" style={{ pointerEvents: "none", willChange: "transform, opacity" }}>
+        {mounted && stars.map((s, i) => (
           <motion.div
             key={`testimonial-star-${i}`}
             className="absolute rounded-full"
             style={{
-              width: Math.random() * 2 + 1,
-              height: Math.random() * 2 + 1,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              background: ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EC4899"][Math.floor(Math.random() * 5)],
-              boxShadow: `0 0 ${Math.random() * 6 + 3}px currentColor`,
+              width: s.width,
+              height: s.height,
+              top: s.top,
+              left: s.left,
+              background: s.background,
+              boxShadow: s.boxShadow,
+              willChange: "transform, opacity",
             }}
-            animate={{
-              opacity: [0, 0.8, 0],
-              scale: [0, 1, 0],
-            }}
-            transition={{
-              duration: Math.random() * 4 + 3,
-              repeat: Number.POSITIVE_INFINITY,
-              delay: Math.random() * 5,
-            }}
+            animate={{ opacity: [0, 0.8, 0], scale: [0, 1, 0] }}
+            transition={{ duration: s.duration, repeat: Number.POSITIVE_INFINITY, delay: s.delay }}
           />
         ))}
       </div>
@@ -107,10 +121,11 @@ const Testimonials = () => {
       />
 
       {/* Enhanced gradient orbs */}
-      <motion.div
+    <motion.div
         className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full filter blur-3xl opacity-20"
         style={{
-          background: "radial-gradient(circle, rgba(139,92,246,0.4) 0%, rgba(59,130,246,0.2) 50%, transparent 100%)",
+      background: "radial-gradient(circle, rgba(139,92,246,0.4) 0%, rgba(59,130,246,0.2) 50%, transparent 100%)",
+      willChange: "transform, opacity",
         }}
         animate={{
           scale: [1, 1.2, 1],
@@ -123,10 +138,11 @@ const Testimonials = () => {
           repeatType: "reverse",
         }}
       />
-      <motion.div
+    <motion.div
         className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full filter blur-3xl opacity-20"
         style={{
-          background: "radial-gradient(circle, rgba(236,72,153,0.4) 0%, rgba(16,185,129,0.2) 50%, transparent 100%)",
+      background: "radial-gradient(circle, rgba(236,72,153,0.4) 0%, rgba(16,185,129,0.2) 50%, transparent 100%)",
+      willChange: "transform, opacity",
         }}
         animate={{
           scale: [1, 1.3, 1],
