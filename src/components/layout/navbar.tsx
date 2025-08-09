@@ -138,7 +138,6 @@ export function Navbar() {
              <motion.div variants={itemVariants}>
                <a
                  href="https://portal.oddiant.com/join-now"
-                 target="_blank"
                  rel="noopener noreferrer"
                  className="inline-flex items-center gap-1 px-4 py-1 text-white font-medium border border-gray-300 rounded-md transition-all duration-300 hover:text-black hover:bg-green-600 hover:border-green-600"
                >
@@ -208,7 +207,6 @@ export function Navbar() {
                                  {/* Mobile Portal Button */}
                  <a
                    href="https://portal.oddiant.com/join-now"
-                   target="_blank"
                    rel="noopener noreferrer"
                    className="inline-flex items-center justify-center gap-1 px-4 py-3 text-white font-medium border border-gray-300 rounded-md transition-all duration-300 hover:text-black hover:bg-green-600 hover:border-green-600"
                    onClick={() => setIsOpen(false)}
