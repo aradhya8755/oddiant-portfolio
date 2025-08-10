@@ -191,7 +191,7 @@ export default function Home() {
                 typeSpeed={70} /* slower (ms per char) for readable pace */
                 backSpeed={40}
                 backDelay={1200}
-                loop={false} /* only type once since single string */
+                loop={true} 
                 showCursor={true}
                 className="text-white"
               />
