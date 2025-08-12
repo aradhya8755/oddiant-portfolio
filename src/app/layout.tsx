@@ -11,7 +11,15 @@ export const metadata: Metadata = {
   title: "Oddiant Techlabs - IT & HR Consulting Firm",
   description:
     "Oddiant Techlabs is a bootstrapped consulting firm for IT, HR, Manpower & Recruitment, staffing services headquartered in Noida, India.",
-};
+      icons: {
+    icon: [
+      { url: "/images/logos/favicon.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/images/logos/favicon.png" },
+    ],
+  },
+  };
 
 export default function RootLayout({
   children,
